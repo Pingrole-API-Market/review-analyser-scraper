@@ -1,0 +1,83 @@
+{
+  "actorSpecification": 1,
+  "fields": {
+    "business_name":           { "type": "string",  "description": "Name of the analysed business" },
+    "location":                { "type": "string",  "description": "Full location string (city, country, ZIP, country code)" },
+    "platforms_scraped":       { "type": "array",   "description": "Platforms from which reviews were successfully scraped" },
+    "total_reviews_analysed":  { "type": "integer", "description": "Total number of reviews collected across all platforms" },
+    "overall_sentiment":       { "type": "string",  "description": "Aggregate sentiment label: 'positive', 'neutral', or 'negative'" },
+    "sentiment_breakdown":     { "type": "object",  "description": "Percentage share of each sentiment class: { positive, neutral, negative }" },
+    "rating_trend":            { "type": "string",  "description": "Direction of ratings over time: 'improving', 'stable', 'declining', or 'insufficient_data'" },
+    "average_rating":          { "type": "number",  "description": "Mean star rating across all reviews (1–5 scale)" },
+    "top_complaints":          { "type": "array",   "description": "Most frequent complaint keywords extracted from negative reviews" },
+    "top_praises":             { "type": "array",   "description": "Most frequent praise keywords extracted from positive reviews" },
+    "top_keywords":            { "type": "array",   "description": "Top 10 most frequent meaningful words across all reviews" },
+    "fake_review_risk":        { "type": "string",  "description": "Overall fake-review risk level: 'low', 'medium', or 'high'" },
+    "fake_review_count":       { "type": "integer", "description": "Number of reviews flagged as potentially fake" },
+    "reviews":                 { "type": "array",   "description": "Full list of annotated individual reviews (see review object fields below)" },
+    "scraped_at":              { "type": "string",  "description": "ISO 8601 UTC timestamp of when the analysis run completed" }
+  },
+  "views": {
+    "overview": {
+      "title": "Analysis Summary",
+      "transformation": {
+        "fields": [
+          "business_name",
+          "location",
+          "platforms_scraped",
+          "total_reviews_analysed",
+          "overall_sentiment",
+          "sentiment_breakdown",
+          "rating_trend",
+          "average_rating",
+          "top_complaints",
+          "top_praises",
+          "top_keywords",
+          "fake_review_risk",
+          "fake_review_count",
+          "scraped_at"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "business_name":          { "label": "Business",          "format": "text"    },
+          "location":               { "label": "Location",          "format": "text"    },
+          "platforms_scraped":      { "label": "Platforms",         "format": "array"   },
+          "total_reviews_analysed": { "label": "Reviews",           "format": "text"    },
+          "overall_sentiment":      { "label": "Sentiment",         "format": "text"    },
+          "sentiment_breakdown":    { "label": "Breakdown",         "format": "object"  },
+          "rating_trend":           { "label": "Trend",             "format": "text"    },
+          "average_rating":         { "label": "Avg Rating",        "format": "text"    },
+          "top_complaints":         { "label": "Top Complaints",    "format": "array"   },
+          "top_praises":            { "label": "Top Praises",       "format": "array"   },
+          "top_keywords":           { "label": "Top Keywords",      "format": "array"   },
+          "fake_review_risk":       { "label": "Fake Risk",         "format": "text"    },
+          "fake_review_count":      { "label": "Fake Count",        "format": "text"    },
+          "scraped_at":             { "label": "Scraped At",        "format": "text"    }
+        }
+      }
+    },
+    "reviews": {
+      "title": "Individual Reviews",
+      "transformation": {
+        "fields": ["reviews"],
+        "flatten": ["reviews"]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "platform":        { "label": "Platform",        "format": "text"    },
+          "author":          { "label": "Author",          "format": "text"    },
+          "rating":          { "label": "Rating",          "format": "text"    },
+          "date":            { "label": "Date",            "format": "text"    },
+          "text":            { "label": "Review Text",     "format": "text"    },
+          "sentiment":       { "label": "Sentiment",       "format": "text"    },
+          "sentiment_score": { "label": "Confidence",      "format": "text"    },
+          "topics":          { "label": "Topics",          "format": "array"   },
+          "is_fake_flag":    { "label": "Fake Flag",       "format": "boolean" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "actorSpecification": 1,
+  "name": "business-review-analyser",
+  "title": "Business Review Analyser & Sentiment Extractor",
+  "description": "Scrapes reviews from Google Maps, Trustpilot, Glassdoor, and Yelp. Runs HuggingFace sentiment analysis, detects fake reviews, aggregates intelligence, and exports to CSV/JSON/XLSX with optional Discord notifications.",
+  "version": "0.1",
+  "input": "./input_schema.json",
+  "storages": {
+    "dataset": "./output_schema.json"
+  }
+}
