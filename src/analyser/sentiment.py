@@ -1,6 +1,5 @@
 import logging
 import re
-from functools import lru_cache
 from typing import NamedTuple
 
 import torch
@@ -10,7 +9,6 @@ logger = logging.getLogger(__name__)
 
 MODEL_NAME = "cardiffnlp/twitter-roberta-base-sentiment"
 
-# Mapping from model's LABEL_* to human-readable names
 LABEL_MAP = {
     "LABEL_0": "negative",
     "LABEL_1": "neutral",
@@ -19,12 +17,11 @@ LABEL_MAP = {
 
 
 class SentimentResult(NamedTuple):
-    label: str        # "positive" | "neutral" | "negative"
-    score: float      # confidence 0–1
+    label: str
+    score: float
 
 
 def _preprocess(text: str) -> str:
-    """Normalise mentions and URLs before feeding to the model."""
     tokens = []
     for token in text.split():
         if token.startswith("@") and len(token) > 1:
@@ -36,20 +33,50 @@ def _preprocess(text: str) -> str:
 
 
 class SentimentAnalyzer:
-    """Loads the HuggingFace model once and reuses it across all reviews."""
+    """Loads the HuggingFace model once and reuses it across all reviews.
+
+    Uses dynamic INT8 quantisation on CPU to cut memory ~4× vs FP32.
+    Falls back to unquantised if quantisation is unavailable.
+    """
 
     def __init__(self) -> None:
         logger.info("Loading sentiment model: %s", MODEL_NAME)
-        device = 0 if torch.cuda.is_available() else -1
+        use_cuda = torch.cuda.is_available()
+
+        tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+        model = AutoModelForSequenceClassification.from_pretrained(
+            MODEL_NAME,
+            low_cpu_mem_usage=True,
+        )
+
+        if not use_cuda:
+            # INT8 quantisation: ~125 MB vs ~500 MB FP32 — safe on CPU.
+            # fbgemm = Linux/x86 (Apify), qnnpack = macOS/ARM.
+            quantised = False
+            for engine in ("fbgemm", "qnnpack"):
+                try:
+                    torch.backends.quantized.engine = engine
+                    model = torch.quantization.quantize_dynamic(
+                        model, {torch.nn.Linear}, dtype=torch.qint8
+                    )
+                    logger.info("Model quantised to INT8 (engine=%s)", engine)
+                    quantised = True
+                    break
+                except Exception:
+                    continue
+            if not quantised:
+                logger.warning("INT8 quantisation unavailable — using FP32")
+
+        device = 0 if use_cuda else -1
         self._pipe = pipeline(
             "sentiment-analysis",
-            model=MODEL_NAME,
-            tokenizer=MODEL_NAME,
+            model=model,
+            tokenizer=tokenizer,
             device=device,
             truncation=True,
             max_length=512,
         )
-        logger.info("Sentiment model loaded (device=%s)", "cuda" if device == 0 else "cpu")
+        logger.info("Sentiment model loaded (device=%s)", "cuda" if use_cuda else "cpu")
 
     def analyse(self, text: str) -> SentimentResult:
         if not text or not text.strip():

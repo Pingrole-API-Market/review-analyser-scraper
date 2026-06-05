@@ -53,28 +53,24 @@ async def main() -> None:
         fake_detector = FakeReviewDetector()
         storage = MongoStorage()
 
-        # ── Scrape all platforms (isolated — failures don't propagate) ─
+        # ── Scrape platforms sequentially — one browser alive at a time ─
+        # Concurrent scraping multiplies Chromium memory usage; sequential
+        # keeps peak RSS to ~model + one browser (~700 MB on CPU).
         all_raw_reviews: list[dict] = []
         platforms_scraped: list[str] = []
 
-        scrape_tasks = {
-            platform: SCRAPER_MAP[platform]().scrape(
-                business_name, full_location, limit_per_platform
-            )
-            for platform in platforms
-        }
-
-        results = await asyncio.gather(*scrape_tasks.values(), return_exceptions=True)
-
-        for platform, result in zip(scrape_tasks.keys(), results):
-            if isinstance(result, BaseException):
-                logger.error("[%s] Scrape failed: %s", platform, result)
-                await Actor.push_data({"event": "scrape_error", "platform": platform, "error": str(result)})
-            else:
+        for platform in platforms:
+            try:
+                result = await SCRAPER_MAP[platform]().scrape(
+                    business_name, full_location, limit_per_platform
+                )
                 logger.info("[%s] Got %d reviews", platform, len(result))
                 all_raw_reviews.extend(result)
                 if result:
                     platforms_scraped.append(platform)
+            except Exception as exc:
+                logger.error("[%s] Scrape failed: %s", platform, exc)
+                await Actor.push_data({"event": "scrape_error", "platform": platform, "error": str(exc)})
 
         if not all_raw_reviews:
             logger.warning("No reviews scraped from any platform — exiting")
