@@ -1,0 +1,102 @@
+{
+  "business_name": "Domino's Pizza",
+  "location": "Berlin, Germany",
+  "platforms_scraped": [
+    "trustpilot"
+  ],
+  "total_reviews_analysed": 5,
+  "overall_sentiment": "positive",
+  "sentiment_breakdown": {
+    "positive": 60,
+    "neutral": 0,
+    "negative": 40
+  },
+  "rating_trend": "insufficient_data",
+  "average_rating": 1.0,
+  "top_complaints": [
+    "burnt",
+    "order"
+  ],
+  "top_praises": [
+    "great",
+    "best"
+  ],
+  "top_keywords": [
+    "pizza",
+    "see",
+    "company",
+    "replied",
+    "great",
+    "ordered",
+    "chicken",
+    "crust",
+    "pizzas",
+    "word"
+  ],
+  "fake_review_risk": "low",
+  "fake_review_count": 0,
+  "reviews": [
+    {
+      "platform": "trustpilot",
+      "author": "Mattias",
+      "rating": null,
+      "text": "The pizza is great, ordered the spizy one with salami and Italian crust (never understood the American pan style pizzas) for take away. Also appreciate the 50% discounts on Tuesdays. Can't give a 5, t... See more Company replied",
+      "date": "2025-04-08",
+      "sentiment": "positive",
+      "sentiment_score": 0.9782,
+      "topics": [],
+      "is_fake_flag": false
+    },
+    {
+      "platform": "trustpilot",
+      "author": "Christina Gjelstrup Andersen",
+      "rating": null,
+      "text": "In the order i specifically wrote word for word \"PLEASE NO BACON. We eat halal, so please no bacon.\" We received a pizza with burnt cheese on top, a cardboard dry and burnt crust (usa... See more Company replied",
+      "date": "2026-04-30",
+      "sentiment": "negative",
+      "sentiment_score": 0.482,
+      "topics": [
+        "food quality"
+      ],
+      "is_fake_flag": false
+    },
+    {
+      "platform": "trustpilot",
+      "author": "PP` LD",
+      "rating": null,
+      "text": "First time ordering from Domino's, we went for the \"Double Deal Deluxe\", meaning 2 large-sized pizzas to a certain discount. While my pizza is actually delish (self-composed) my buddy's is... See more Company replied",
+      "date": "2024-12-30",
+      "sentiment": "positive",
+      "sentiment_score": 0.7875,
+      "topics": [
+        "portions"
+      ],
+      "is_fake_flag": false
+    },
+    {
+      "platform": "trustpilot",
+      "author": "Andreas Risberg",
+      "rating": null,
+      "text": "The best pizza in town! Great service and great staff! Definatley my favourite pizzeria! I do really miss my favourite dipp though: sweet chilli Company replied",
+      "date": "2022-04-29",
+      "sentiment": "positive",
+      "sentiment_score": 0.9804,
+      "topics": [
+        "service"
+      ],
+      "is_fake_flag": false
+    },
+    {
+      "platform": "trustpilot",
+      "author": "Molham zorro",
+      "rating": 1,
+      "text": "I ordered chicken pizza I ordered chicken pizza . And honestly I cant see the chicken, maybe it have 25 gram? So I felt i got scammed",
+      "date": "2026-05-05",
+      "sentiment": "negative",
+      "sentiment_score": 0.8299,
+      "topics": [],
+      "is_fake_flag": false
+    }
+  ],
+  "scraped_at": "2026-06-05T19:39:50.768557Z"
+}

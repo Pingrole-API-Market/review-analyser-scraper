@@ -1,0 +1,75 @@
+{
+  "actorInputSchemaVersion": 1,
+  "title": "Business Review Analyser Input",
+  "description": "Configure which business to analyse and where to scrape reviews from.",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "business_name": {
+      "title": "Business Name",
+      "type": "string",
+      "description": "Name of the business to analyse (e.g. \"Joe's Pizza\").",
+      "editor": "textfield"
+    },
+    "location": {
+      "title": "Location",
+      "type": "string",
+      "description": "City and country (e.g. \"Berlin, Germany\").",
+      "editor": "textfield"
+    },
+    "zip_code": {
+      "title": "ZIP / Postal Code",
+      "type": "string",
+      "description": "Postal code to narrow results (optional).",
+      "editor": "textfield"
+    },
+    "country": {
+      "title": "Country Code",
+      "type": "string",
+      "description": "ISO 3166-1 alpha-2 country code (e.g. \"DE\").",
+      "editor": "textfield"
+    },
+    "platforms": {
+      "title": "Platforms",
+      "type": "array",
+      "description": "Review platforms to scrape.",
+      "items": {
+        "type": "string",
+        "enum": ["google", "trustpilot", "glassdoor", "yelp"]
+      },
+      "default": ["google", "trustpilot", "glassdoor", "yelp"],
+      "editor": "select"
+    },
+    "limit_per_platform": {
+      "title": "Reviews Limit Per Platform",
+      "type": "integer",
+      "description": "Maximum number of reviews to scrape from each platform.",
+      "default": 100,
+      "minimum": 1,
+      "maximum": 500,
+      "editor": "number"
+    },
+    "export": {
+      "title": "Export Results",
+      "type": "boolean",
+      "description": "If enabled, saves the analysed data as a downloadable file.",
+      "default": true,
+      "editor": "checkbox"
+    },
+    "export_format": {
+      "title": "Export Format",
+      "type": "string",
+      "description": "File format for the export.",
+      "enum": ["csv", "json", "xlsx"],
+      "default": "csv",
+      "editor": "select"
+    },
+    "discord_webhook": {
+      "title": "Discord Webhook URL",
+      "type": "string",
+      "description": "Optional Discord webhook. Sends a summary embed and the export file when complete.",
+      "editor": "textfield"
+    }
+  },
+  "required": ["business_name"]
+}

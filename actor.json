@@ -1,0 +1,51 @@
+{
+  "actorSpecification": 1,
+  "name": "business-review-analyser",
+  "title": "Business Review Analyser & Sentiment Extractor",
+  "description": "Scrapes reviews from Google Maps, Trustpilot, Glassdoor, and Yelp. Runs HuggingFace sentiment analysis, detects fake reviews, aggregates insights, and exports to CSV/JSON/XLSX with optional Discord notifications.",
+  "version": "1.0.0",
+  "buildTag": "latest",
+  "environmentVariables": {
+    "MONGODB_URI": ""
+  },
+  "dockerfile": "./Dockerfile",
+  "input": "./input_schema.json",
+  "storages": {
+    "dataset": {
+      "actorSpecification": 1,
+      "title": "Review Analysis Results",
+      "views": {
+        "overview": {
+          "title": "Overview",
+          "transformation": {
+            "fields": [
+              "business_name",
+              "location",
+              "platforms_scraped",
+              "total_reviews_analysed",
+              "overall_sentiment",
+              "average_rating",
+              "rating_trend",
+              "fake_review_risk",
+              "fake_review_count",
+              "scraped_at"
+            ]
+          },
+          "display": {
+            "component": "table",
+            "properties": {
+              "business_name": {"label": "Business"},
+              "location": {"label": "Location"},
+              "overall_sentiment": {"label": "Sentiment"},
+              "average_rating": {"label": "Avg Rating"},
+              "total_reviews_analysed": {"label": "Reviews"},
+              "rating_trend": {"label": "Trend"},
+              "fake_review_risk": {"label": "Fake Risk"},
+              "scraped_at": {"label": "Scraped At"}
+            }
+          }
+        }
+      }
+    }
+  }
+}
