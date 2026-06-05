@@ -2,8 +2,7 @@
   "business_name": "Domino's Pizza",
   "location": "Berlin, Germany",
   "platforms": ["trustpilot"],
-  "limit_per_platform": 5,
-  "export": true,
-  "export_format": "csv",
-  "discord_webhook": ""
+  "limit_per_platform": 3,
+  "export_as_file": true,
+  "export_format": "xlsx"
 }

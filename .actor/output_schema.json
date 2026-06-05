@@ -15,7 +15,8 @@
     "fake_review_risk":        { "type": "string",  "description": "Overall fake-review risk level: 'low', 'medium', or 'high'" },
     "fake_review_count":       { "type": "integer", "description": "Number of reviews flagged as potentially fake" },
     "reviews":                 { "type": "array",   "description": "Full list of annotated individual reviews (see review object fields below)" },
-    "scraped_at":              { "type": "string",  "description": "ISO 8601 UTC timestamp of when the analysis run completed" }
+    "scraped_at":              { "type": "string",  "description": "ISO 8601 UTC timestamp of when the analysis run completed" },
+    "export_file_url":         { "type": "string",  "description": "Public download URL of the exported file (CSV/XLSX/JSON). Null when 'Export as File' is disabled." }
   },
   "views": {
     "overview": {
@@ -35,7 +36,8 @@
           "top_keywords",
           "fake_review_risk",
           "fake_review_count",
-          "scraped_at"
+          "scraped_at",
+          "export_file_url"
         ]
       },
       "display": {
@@ -54,7 +56,8 @@
           "top_keywords":           { "label": "Top Keywords",      "format": "array"   },
           "fake_review_risk":       { "label": "Fake Risk",         "format": "text"    },
           "fake_review_count":      { "label": "Fake Count",        "format": "text"    },
-          "scraped_at":             { "label": "Scraped At",        "format": "text"    }
+          "scraped_at":             { "label": "Scraped At",        "format": "text"    },
+          "export_file_url":        { "label": "Export File",       "format": "link"    }
         }
       }
     },

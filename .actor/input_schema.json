@@ -4,14 +4,81 @@
   "schemaVersion": 1,
   "required": ["business_name"],
   "properties": {
-    "business_name":       { "title": "Business Name",            "type": "string",  "editor": "textfield", "description": "Name of the business to analyse.",                                                                                                                                                                                                       "prefill": "Joe's Pizza" },
-    "location":            { "title": "Location",                 "type": "string",  "editor": "textfield", "description": "City and country, e.g. 'Berlin, Germany'.",                                                                                                                                                                                             "prefill": "Berlin, Germany" },
-    "zip_code":            { "title": "ZIP / Postal Code",        "type": "string",  "editor": "textfield", "description": "Postal code to narrow results.",                                                                                                                                                                                                         "prefill": "12167" },
-    "country":             { "title": "Country Code",             "type": "string",  "editor": "select",    "description": "ISO 3166-1 alpha-2 country code.",                                                                                                                                                                                                       "enum": ["US", "DE", "FR", "GB", "IT", "ES", "NL", "CA", "AU", "CH", "AT", "BE", "PL", "SE", "NO", "DK"], "enumTitles": ["United States", "Germany", "France", "United Kingdom", "Italy", "Spain", "Netherlands", "Canada", "Australia", "Switzerland", "Austria", "Belgium", "Poland", "Sweden", "Norway", "Denmark"], "default": "DE", "prefill": "DE" },
-    "platforms":           { "title": "Platforms",                "type": "array",   "editor": "select",    "description": "Review platforms to scrape.",                                                                                                                                                                                                             "items": { "type": "string", "enum": ["google", "trustpilot", "glassdoor", "yelp"] }, "default": ["google", "trustpilot", "glassdoor", "yelp"] },
-    "limit_per_platform":  { "title": "Reviews Limit Per Platform", "type": "integer", "editor": "number", "description": "Maximum number of reviews to scrape from each platform (1–500).",                                                                                                                                                                        "default": 100, "prefill": 50, "minimum": 1, "maximum": 500 },
-    "export":              { "title": "Export Results",           "type": "boolean", "editor": "checkbox",  "description": "Save analysed data as a downloadable file in Key-Value store.",                                                                                                                                                                          "default": true },
-    "export_format":       { "title": "Export Format",            "type": "string",  "editor": "select",    "description": "File format for the export.",                                                                                                                                                                                                            "enum": ["csv", "json", "xlsx"], "enumTitles": ["CSV", "JSON", "XLSX (Excel)"], "default": "csv" },
-    "discord_webhook":     { "title": "Discord Webhook URL",      "type": "string",  "editor": "textfield", "description": "Optional Discord webhook — sends a summary embed and the export file when the run completes." }
+    "business_name": {
+      "title": "Business Name",
+      "type": "string",
+      "editor": "textfield",
+      "description": "Name of the business to analyse.",
+      "prefill": "Joe's Pizza"
+    },
+    "location": {
+      "title": "Location",
+      "type": "string",
+      "editor": "textfield",
+      "description": "City and country, e.g. 'Berlin, Germany'.",
+      "prefill": "Berlin, Germany"
+    },
+    "zip_code": {
+      "title": "ZIP / Postal Code",
+      "type": "string",
+      "editor": "textfield",
+      "description": "Postal code to narrow results.",
+      "prefill": "12167"
+    },
+    "country": {
+      "title": "Country Code",
+      "type": "string",
+      "editor": "select",
+      "description": "ISO 3166-1 alpha-2 country code.",
+      "enum": ["US", "DE", "FR", "GB", "IT", "ES", "NL", "CA", "AU", "CH", "AT", "BE", "PL", "SE", "NO", "DK"],
+      "enumTitles": ["United States", "Germany", "France", "United Kingdom", "Italy", "Spain", "Netherlands", "Canada", "Australia", "Switzerland", "Austria", "Belgium", "Poland", "Sweden", "Norway", "Denmark"],
+      "default": "DE",
+      "prefill": "DE"
+    },
+    "platforms": {
+      "title": "Platforms",
+      "type": "array",
+      "editor": "select",
+      "description": "Review platforms to scrape.",
+      "items": { "type": "string", "enum": ["google", "trustpilot", "glassdoor", "yelp"] },
+      "default": ["google", "trustpilot", "glassdoor", "yelp"]
+    },
+    "limit_per_platform": {
+      "title": "Reviews Limit Per Platform",
+      "type": "integer",
+      "editor": "number",
+      "description": "Maximum number of reviews to scrape from each platform (1–500).",
+      "default": 100,
+      "prefill": 50,
+      "minimum": 1,
+      "maximum": 500
+    },
+
+    "export_as_file": {
+      "title": "Export as File",
+      "type": "boolean",
+      "editor": "checkbox",
+      "description": "Generate a downloadable file (CSV / XLSX / JSON) stored in Key-Value store. The structured dataset is always available as a table in the Apify console and as JSON via the API — this option is only needed if you want a standalone file.",
+      "default": false,
+      "sectionCaption": "File Export",
+      "sectionDescription": "Optional. Results are always available as a dataset (table view in console, JSON in API). Enable this only if you also need a downloadable file."
+    },
+    "export_format": {
+      "title": "Export Format",
+      "type": "string",
+      "editor": "select",
+      "description": "File format — only used when 'Export as File' is enabled.",
+      "enum": ["xlsx", "csv", "json"],
+      "enumTitles": ["XLSX (Excel)", "CSV", "JSON"],
+      "default": "xlsx"
+    },
+
+    "discord_webhook": {
+      "title": "Discord Webhook URL",
+      "type": "string",
+      "editor": "textfield",
+      "description": "Optional. Sends a summary embed to your Discord channel when the run completes. If 'Export as File' is also enabled, the file is attached to the message.",
+      "sectionCaption": "Notifications"
+    }
   }
 }

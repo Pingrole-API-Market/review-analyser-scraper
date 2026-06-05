@@ -34,8 +34,8 @@ async def main() -> None:
             if p.lower() in SCRAPER_MAP
         ]
         limit_per_platform: int = int(actor_input.get("limit_per_platform", 100))
-        do_export: bool = bool(actor_input.get("export", False))
-        export_format: str = actor_input.get("export_format", "csv").lower()
+        export_as_file: bool = bool(actor_input.get("export_as_file", False))
+        export_format: str = actor_input.get("export_format", "xlsx").lower()
         discord_webhook: str = actor_input.get("discord_webhook", "")
 
         if not business_name:
@@ -144,6 +144,7 @@ async def main() -> None:
             "fake_review_count": fake_count,
             "reviews": annotated,
             "scraped_at": scraped_at,
+            "export_file_url": None,   # filled in below if export_as_file=True
         }
 
         # ── MongoDB storage ───────────────────────────────────────────
@@ -151,34 +152,38 @@ async def main() -> None:
         storage.save_result({k: v for k, v in output.items() if k != "reviews"})
         storage.close()
 
-        # ── Push to Apify dataset ─────────────────────────────────────
-        await Actor.push_data(output)
-        logger.info("Pushed results to Apify dataset")
-
-        # ── Export file (csv / json / xlsx) ───────────────────────────
-        export_url: str | None = None
+        # ── Optional file export (CSV / XLSX / JSON) ──────────────────
+        # The dataset push below is always the primary output (table in Apify
+        # console, JSON via API). The file export is an additive option.
         export_bytes: bytes | None = None
         export_filename: str | None = None
 
-        if do_export:
+        if export_as_file:
             store = await Actor.open_key_value_store()
             slug = business_name.lower().replace(" ", "_")
             if export_format == "json":
                 export_bytes = export_json(output)
                 export_filename = f"{slug}_reviews.json"
                 content_type = "application/json"
-            elif export_format == "xlsx":
-                export_bytes = export_xlsx(annotated, output)
-                export_filename = f"{slug}_reviews.xlsx"
-                content_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            else:  # default csv
+            elif export_format == "csv":
                 export_bytes = export_csv(annotated)
                 export_filename = f"{slug}_reviews.csv"
                 content_type = "text/csv"
+            else:  # default xlsx
+                export_bytes = export_xlsx(annotated, output)
+                export_filename = f"{slug}_reviews.xlsx"
+                content_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
             await store.set_value(export_filename, export_bytes, content_type=content_type)
-            export_url = store.get_public_url(export_filename)
-            logger.info("Export saved: %s  (%d bytes)", export_filename, len(export_bytes))
+            output["export_file_url"] = store.get_public_url(export_filename)
+            logger.info("File export saved: %s  (%d bytes)", export_filename, len(export_bytes))
+
+        # ── Push to Apify dataset (always) ────────────────────────────
+        # Drives the table view in the Apify console and the JSON response
+        # in the API client. export_file_url is included so the download
+        # link appears as a column in the table when a file was generated.
+        await Actor.push_data(output)
+        logger.info("Pushed results to Apify dataset")
 
         # ── Discord notification ──────────────────────────────────────
         if discord_webhook:
@@ -186,9 +191,9 @@ async def main() -> None:
                 await send_discord_summary(
                     discord_webhook,
                     summary={k: v for k, v in output.items() if k != "reviews"},
-                    export_url=export_url,
-                    file_bytes=export_bytes if do_export else None,
-                    file_name=export_filename if do_export else None,
+                    export_url=output["export_file_url"],
+                    file_bytes=export_bytes,
+                    file_name=export_filename,
                 )
             except Exception as exc:
                 logger.error("Discord notification failed: %s", exc)
