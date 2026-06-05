@@ -6,11 +6,11 @@ import logging
 from collections import Counter
 
 from apify import Actor
+from playwright.async_api import async_playwright
 
 from src.analyser import FakeReviewDetector, SentimentAnalyzer, extract_topics, review_topics
 from src.exporters import export_csv, export_json, export_xlsx, send_discord_summary
 from src.scrapers import SCRAPER_MAP
-from src.storage import MongoStorage
 from src.utils import compute_overall_sentiment, now_iso, rating_trend
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
@@ -47,33 +47,44 @@ async def main() -> None:
 
         full_location = f"{location}, {zip_code}, {country}".strip(", ")
 
-        # ── Initialise shared resources (loaded once) ─────────────────
+        # ── Load sentiment model once ─────────────────────────────────
         logger.info("Loading sentiment model…")
         sentiment_analyser = SentimentAnalyzer()
         fake_detector = FakeReviewDetector()
-        storage = MongoStorage()
 
-        # ── Scrape platforms sequentially — one browser alive at a time ─
-        # Concurrent scraping multiplies Chromium memory usage; sequential
-        # keeps peak RSS to ~model + one browser (~700 MB on CPU).
+        # ── Scrape all platforms — one shared browser, sequential ─────
+        # One Chromium process is reused across platforms; each scraper
+        # gets its own context (isolated cookies/UA) then closes it.
         all_raw_reviews: list[dict] = []
         platforms_scraped: list[str] = []
 
-        for platform in platforms:
+        async with async_playwright() as pw:
+            browser = await pw.chromium.launch(
+                headless=True,
+                args=["--no-sandbox", "--disable-dev-shm-usage"],
+            )
+            logger.info("Browser launched — scraping %s", platforms)
             try:
-                result = await SCRAPER_MAP[platform]().scrape(
-                    business_name, full_location, limit_per_platform
-                )
-                logger.info("[%s] Got %d reviews", platform, len(result))
-                all_raw_reviews.extend(result)
-                if result:
-                    platforms_scraped.append(platform)
-            except Exception as exc:
-                logger.error("[%s] Scrape failed: %s", platform, exc)
-                await Actor.push_data({"event": "scrape_error", "platform": platform, "error": str(exc)})
+                for platform in platforms:
+                    try:
+                        result = await SCRAPER_MAP[platform]().scrape(
+                            business_name, full_location, limit_per_platform,
+                            browser=browser,
+                        )
+                        logger.info("[%s] Got %d reviews", platform, len(result))
+                        all_raw_reviews.extend(result)
+                        if result:
+                            platforms_scraped.append(platform)
+                    except Exception as exc:
+                        logger.error("[%s] Scrape failed: %s", platform, exc)
+                        await Actor.push_data({
+                            "event": "scrape_error", "platform": platform, "error": str(exc)
+                        })
+            finally:
+                await browser.close()
 
         if not all_raw_reviews:
-            logger.warning("No reviews scraped from any platform — exiting")
+            logger.warning("No reviews scraped from any platform")
             await Actor.push_data({
                 "business_name": business_name,
                 "location": full_location,
@@ -84,25 +95,22 @@ async def main() -> None:
             })
             return
 
-        # ── Pre-register all reviews for burst-detection context ──────
-        fake_detector.register_batch(all_raw_reviews)
-
-        # ── Sentiment analysis (batch for performance) ────────────────
+        # ── Sentiment analysis (batch) ────────────────────────────────
         texts = [r.get("text", "") for r in all_raw_reviews]
         logger.info("Running sentiment analysis on %d reviews…", len(texts))
+        fake_detector.register_batch(all_raw_reviews)
         sentiment_results = sentiment_analyser.analyse_batch(texts)
 
         # ── Annotate reviews ──────────────────────────────────────────
         annotated: list[dict] = []
         for raw, sent in zip(all_raw_reviews, sentiment_results):
-            review = {
+            annotated.append({
                 **raw,
                 "sentiment": sent.label,
                 "sentiment_score": sent.score,
                 "topics": review_topics(raw.get("text", "")),
                 "is_fake_flag": fake_detector.is_fake(raw),
-            }
-            annotated.append(review)
+            })
 
         # ── Aggregate stats ───────────────────────────────────────────
         total = len(annotated)
@@ -118,43 +126,32 @@ async def main() -> None:
 
         fake_count = sum(1 for r in annotated if r["is_fake_flag"])
         fake_risk = (
-            "high" if fake_count / total > 0.3
-            else "medium" if fake_count / total > 0.1
-            else "low"
+            "high"   if fake_count / total > 0.3 else
+            "medium" if fake_count / total > 0.1 else
+            "low"
         )
 
         topic_result = extract_topics(annotated)
-        trend = rating_trend(annotated)
-        overall_sentiment = compute_overall_sentiment(breakdown)
-        scraped_at = now_iso()
-
         output = {
-            "business_name": business_name,
-            "location": full_location,
-            "platforms_scraped": platforms_scraped,
+            "business_name":          business_name,
+            "location":               full_location,
+            "platforms_scraped":      platforms_scraped,
             "total_reviews_analysed": total,
-            "overall_sentiment": overall_sentiment,
-            "sentiment_breakdown": breakdown,
-            "rating_trend": trend,
-            "average_rating": avg_rating,
-            "top_complaints": topic_result.top_complaints,
-            "top_praises": topic_result.top_praises,
-            "top_keywords": topic_result.top_keywords,
-            "fake_review_risk": fake_risk,
-            "fake_review_count": fake_count,
-            "reviews": annotated,
-            "scraped_at": scraped_at,
-            "export_file_url": None,   # filled in below if export_as_file=True
+            "overall_sentiment":      compute_overall_sentiment(breakdown),
+            "sentiment_breakdown":    breakdown,
+            "rating_trend":           rating_trend(annotated),
+            "average_rating":         avg_rating,
+            "top_complaints":         topic_result.top_complaints,
+            "top_praises":            topic_result.top_praises,
+            "top_keywords":           topic_result.top_keywords,
+            "fake_review_risk":       fake_risk,
+            "fake_review_count":      fake_count,
+            "reviews":                annotated,
+            "scraped_at":             now_iso(),
+            "export_file_url":        None,
         }
 
-        # ── MongoDB storage ───────────────────────────────────────────
-        storage.upsert_reviews(annotated)
-        storage.save_result({k: v for k, v in output.items() if k != "reviews"})
-        storage.close()
-
         # ── Optional file export (CSV / XLSX / JSON) ──────────────────
-        # The dataset push below is always the primary output (table in Apify
-        # console, JSON via API). The file export is an additive option.
         export_bytes: bytes | None = None
         export_filename: str | None = None
 
@@ -179,9 +176,6 @@ async def main() -> None:
             logger.info("File export saved: %s  (%d bytes)", export_filename, len(export_bytes))
 
         # ── Push to Apify dataset (always) ────────────────────────────
-        # Drives the table view in the Apify console and the JSON response
-        # in the API client. export_file_url is included so the download
-        # link appears as a column in the table when a file was generated.
         await Actor.push_data(output)
         logger.info("Pushed results to Apify dataset")
 
@@ -198,7 +192,10 @@ async def main() -> None:
             except Exception as exc:
                 logger.error("Discord notification failed: %s", exc)
 
-        logger.info("Actor finished — %d reviews analysed across %d platforms", total, len(platforms_scraped))
+        logger.info(
+            "Actor finished — %d reviews analysed across %d platforms",
+            total, len(platforms_scraped),
+        )
 
 
 if __name__ == "__main__":

@@ -20,8 +20,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Install Playwright Chromium browser
 RUN playwright install chromium && playwright install-deps chromium
 
-# Pre-download HuggingFace model to bake into image
-# (avoids cold-start download on each actor run)
+# Pre-download HuggingFace model into the image layer
 RUN python -c "\
 from transformers import AutoTokenizer, AutoModelForSequenceClassification; \
 AutoTokenizer.from_pretrained('cardiffnlp/twitter-roberta-base-sentiment'); \
@@ -29,8 +28,11 @@ AutoModelForSequenceClassification.from_pretrained('cardiffnlp/twitter-roberta-b
 
 COPY . .
 
-# Apify SDK picks up APIFY_* env vars at runtime
+# After the model is baked in, lock HF to offline mode so every run
+# loads straight from the image cache — no network round-trips to HF Hub.
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
+    PYTHONDONTWRITEBYTECODE=1 \
+    TRANSFORMERS_OFFLINE=1 \
+    HF_HUB_OFFLINE=1
 
 CMD ["python", "-m", "src.main"]

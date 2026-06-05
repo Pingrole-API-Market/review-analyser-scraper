@@ -3,7 +3,7 @@ import logging
 import re
 from datetime import datetime
 
-from playwright.async_api import Page, async_playwright
+from playwright.async_api import Browser, Page, async_playwright
 
 from src.utils import clean_text, random_delay, random_user_agent, random_viewport, retry
 
@@ -16,29 +16,37 @@ class GlassdoorScraper:
     PLATFORM = "glassdoor"
 
     async def scrape(
-        self, business_name: str, location: str, limit: int = 100
+        self, business_name: str, location: str, limit: int = 100,
+        browser: Browser | None = None,
     ) -> list[dict]:
         reviews: list[dict] = []
-        async with async_playwright() as pw:
-            browser = await pw.chromium.launch(headless=True, args=["--no-sandbox"])
-            context = await browser.new_context(
-                user_agent=random_user_agent(),
-                viewport=random_viewport(),
-                locale="en-US",
-            )
-            page = await context.new_page()
-            try:
-                await retry(
-                    lambda: self._scrape_all(page, business_name, location, limit, reviews),
-                    retries=3,
-                    label="glassdoor",
-                )
-            except Exception as exc:
-                logger.error("[glassdoor] Fatal error: %s", exc)
-            finally:
-                await browser.close()
+        if browser is not None:
+            await self._run(business_name, location, limit, browser, reviews)
+        else:
+            async with async_playwright() as pw:
+                _b = await pw.chromium.launch(headless=True, args=["--no-sandbox"])
+                await self._run(business_name, location, limit, _b, reviews)
+                await _b.close()
         logger.info("[glassdoor] Scraped %d reviews", len(reviews))
         return reviews
+
+    async def _run(
+        self, business_name: str, location: str, limit: int,
+        browser: Browser, reviews: list[dict],
+    ) -> None:
+        context = await browser.new_context(
+            user_agent=random_user_agent(), viewport=random_viewport(), locale="en-US"
+        )
+        page = await context.new_page()
+        try:
+            await retry(
+                lambda: self._scrape_all(page, business_name, location, limit, reviews),
+                retries=3, label="glassdoor",
+            )
+        except Exception as exc:
+            logger.error("[glassdoor] Fatal error: %s", exc)
+        finally:
+            await context.close()
 
     async def _scrape_all(
         self, page: Page, business_name: str, location: str, limit: int, reviews: list[dict]
@@ -51,7 +59,6 @@ class GlassdoorScraper:
         await page.goto(search_url, wait_until="domcontentloaded", timeout=30_000)
         await random_delay(1500, 2500)
 
-        # Accept cookies / privacy banner
         try:
             cookie_btn = page.locator("button#onetrust-accept-btn-handler, button:has-text('Accept')").first
             if await cookie_btn.count() > 0:
@@ -60,7 +67,6 @@ class GlassdoorScraper:
         except Exception:
             pass
 
-        # Click on first company result
         try:
             company_link = page.locator("a[href*='/Reviews/'], a[data-test='employer-link']").first
             await company_link.wait_for(timeout=10_000)
@@ -68,7 +74,6 @@ class GlassdoorScraper:
             if not href:
                 raise RuntimeError("No company link found")
             reviews_url = href if href.startswith("http") else f"{BASE_URL}{href}"
-            # Ensure we land on the reviews page
             if "/Reviews/" not in reviews_url:
                 reviews_url = re.sub(r"/Overview/", "/Reviews/", reviews_url)
         except Exception as exc:
@@ -82,7 +87,6 @@ class GlassdoorScraper:
             await page.goto(url, wait_until="domcontentloaded", timeout=30_000)
             await random_delay(2000, 3500)
 
-            # Handle sign-in wall — try to dismiss
             try:
                 modal_close = page.locator("span.modal_closeIcon, button[alt='Close']").first
                 if await modal_close.count() > 0:
@@ -93,7 +97,6 @@ class GlassdoorScraper:
 
             cards = await page.locator("li[class*='ReviewsList__review'], div[id^='review_']").all()
             if not cards:
-                logger.debug("[glassdoor] No cards on page %d", page_num)
                 break
 
             prev_len = len(reviews)
@@ -113,7 +116,6 @@ class GlassdoorScraper:
             if len(reviews) == prev_len:
                 break
 
-            # Check for next page
             next_btn = page.locator("button[data-test='pagination-next'], a.nextButton").first
             if await next_btn.count() == 0:
                 break
@@ -121,7 +123,6 @@ class GlassdoorScraper:
 
     async def _extract_card(self, card) -> dict | None:
         try:
-            # Expand if collapsed
             show_more = card.locator("span.link:has-text('Show More')").first
             if await show_more.count() > 0:
                 await show_more.click()
@@ -145,8 +146,7 @@ class GlassdoorScraper:
             cons_el = card.locator("span[data-test='cons']").first
             pros = clean_text(await pros_el.inner_text()) if await pros_el.count() > 0 else ""
             cons = clean_text(await cons_el.inner_text()) if await cons_el.count() > 0 else ""
-            text_parts = [p for p in [title, pros, cons] if p]
-            text = " | ".join(text_parts)
+            text = " | ".join(p for p in [title, pros, cons] if p)
 
             date_el = card.locator("time, span[class*='reviewDate']").first
             date_raw = ""
@@ -155,15 +155,8 @@ class GlassdoorScraper:
                     await date_el.get_attribute("datetime")
                     or clean_text(await date_el.inner_text())
                 )
-            date = _parse_date(date_raw)
 
-            return {
-                "platform": "glassdoor",
-                "author": author,
-                "rating": rating,
-                "text": text,
-                "date": date,
-            }
+            return {"platform": "glassdoor", "author": author, "rating": rating, "text": text, "date": _parse_date(date_raw)}
         except Exception as exc:
             logger.debug("[glassdoor] Card parse error: %s", exc)
             return None
