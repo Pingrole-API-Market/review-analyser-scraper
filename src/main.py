@@ -3,6 +3,7 @@ Apify Actor entrypoint — Business Review Analyser & Sentiment Extractor.
 """
 import asyncio
 import logging
+import re
 from collections import Counter
 
 from apify import Actor
@@ -34,7 +35,10 @@ async def main() -> None:
             if p.lower() in SCRAPER_MAP
         ]
         limit_per_platform: int = int(actor_input.get("limit_per_platform", 100))
-        export_as_file: bool = bool(actor_input.get("export_as_file", False))
+        # Support both the current key and the legacy "export" key
+        export_as_file: bool = bool(
+            actor_input.get("export_as_file") or actor_input.get("export", False)
+        )
         export_format: str = actor_input.get("export_format", "xlsx").lower()
         discord_webhook: str = actor_input.get("discord_webhook", "")
 
@@ -166,24 +170,28 @@ async def main() -> None:
         export_filename: str | None = None
 
         if export_as_file:
-            store = await Actor.open_key_value_store()
-            slug = business_name.lower().replace(" ", "_")
-            if export_format == "json":
-                export_bytes = export_json(output)
-                export_filename = f"{slug}_reviews.json"
-                content_type = "application/json"
-            elif export_format == "csv":
-                export_bytes = export_csv(annotated)
-                export_filename = f"{slug}_reviews.csv"
-                content_type = "text/csv"
-            else:  # default xlsx
-                export_bytes = export_xlsx(annotated, output)
-                export_filename = f"{slug}_reviews.xlsx"
-                content_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            try:
+                store = await Actor.open_key_value_store()
+                slug = re.sub(r"[^\w]+", "_", business_name.lower()).strip("_")
+                if export_format == "json":
+                    export_bytes = export_json(output)
+                    export_filename = f"{slug}_reviews.json"
+                    content_type = "application/json"
+                elif export_format == "csv":
+                    export_bytes = export_csv(annotated)
+                    export_filename = f"{slug}_reviews.csv"
+                    content_type = "text/csv"
+                else:  # default xlsx
+                    export_bytes = export_xlsx(annotated, output)
+                    export_filename = f"{slug}_reviews.xlsx"
+                    content_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
-            await store.set_value(export_filename, export_bytes, content_type=content_type)
-            output["export_file_url"] = store.get_public_url(export_filename)
-            logger.info("File export saved: %s  (%d bytes)", export_filename, len(export_bytes))
+                await store.set_value(export_filename, export_bytes, content_type=content_type)
+                output["export_file_url"] = await store.get_public_url(export_filename)
+                logger.info("File export saved: %s (%d bytes)  url=%s",
+                            export_filename, len(export_bytes), output["export_file_url"])
+            except Exception as exc:
+                logger.error("File export failed: %s", exc)
 
         # ── Push to Apify dataset (always) ────────────────────────────
         await Actor.push_data(output)

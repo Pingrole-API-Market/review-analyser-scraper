@@ -14,8 +14,11 @@
   "rating_trend": "insufficient_data",
   "average_rating": 3.0,
   "top_complaints": [
-    "raw",
-    "disgusting"
+    "veg chicken",
+    "raw load",
+    "load veg",
+    "chicken side",
+    "side gunpowder"
   ],
   "top_praises": [],
   "top_keywords": [
@@ -24,11 +27,11 @@
     "raw",
     "load",
     "side",
-    "while",
     "gunpowder",
     "pepperoni",
     "green",
-    "jalapeño"
+    "jalapeño",
+    "fair"
   ],
   "fake_review_risk": "low",
   "fake_review_count": 0,
@@ -47,6 +50,6 @@
       "is_fake_flag": false
     }
   ],
-  "scraped_at": "2026-06-06T09:37:39.067412Z",
-  "export_file_url": null
+  "scraped_at": "2026-06-06T11:56:05.805187Z",
+  "export_file_url": "file:///Users/hermann/review-analyser-scraper/storage/key_value_stores/default/domino_s_pizza_reviews.xlsx"
 }

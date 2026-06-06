@@ -1,109 +1,173 @@
+"""
+Keyword extraction and topic analysis using NLTK.
+
+Improvements over the previous word-frequency approach:
+- NLTK stopwords corpus (full English list) + domain extras
+- POS tagging — only nouns (NN*) and adjectives (JJ*) kept as keywords
+- Bigrams and trigrams for complaint/praise phrases instead of single words
+"""
+import logging
 import re
-import string
 from collections import Counter
 from typing import NamedTuple
 
-# Stopwords — lightweight, no NLTK dependency
-_STOPWORDS = {
-    "a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for",
-    "of", "with", "by", "from", "is", "was", "are", "were", "be", "been",
-    "have", "has", "had", "do", "did", "will", "would", "could", "should",
-    "this", "that", "these", "those", "it", "its", "i", "my", "me", "we",
-    "our", "you", "your", "he", "she", "they", "them", "their", "not",
-    "very", "so", "just", "also", "here", "there", "when", "where", "how",
-    "what", "which", "who", "than", "more", "most", "much", "many", "some",
-    "all", "no", "any", "each", "few", "been", "then", "up", "out", "if",
-    "about", "over", "after", "before", "other", "can", "even", "only",
-    "us", "get", "got", "go", "went", "come", "back", "really", "too",
-    "time", "times",
+import nltk
+from nltk import ngrams, pos_tag, word_tokenize
+from nltk.corpus import stopwords
+
+logger = logging.getLogger(__name__)
+
+# ------------------------------------------------------------------
+# NLTK resource bootstrap
+# ------------------------------------------------------------------
+_RESOURCES = [
+    ("tokenizers/punkt_tab",                "punkt_tab"),
+    ("tokenizers/punkt",                    "punkt"),
+    ("taggers/averaged_perceptron_tagger_eng", "averaged_perceptron_tagger_eng"),
+    ("taggers/averaged_perceptron_tagger",  "averaged_perceptron_tagger"),
+    ("corpora/stopwords",                   "stopwords"),
+]
+
+def _bootstrap() -> None:
+    for path, name in _RESOURCES:
+        try:
+            nltk.data.find(path)
+        except LookupError:
+            try:
+                nltk.download(name, quiet=True)
+            except Exception:
+                pass  # non-fatal — fallback path handles missing data
+
+_bootstrap()
+
+# ------------------------------------------------------------------
+# Stop words
+# ------------------------------------------------------------------
+try:
+    _STOP: set[str] = set(stopwords.words("english"))
+except Exception:
+    _STOP = set()
+
+# Domain extras that survive the NLTK list but add noise in reviews
+_STOP |= {
+    "would", "could", "also", "even", "really", "just", "get", "got",
+    "one", "two", "three", "time", "times", "back", "go", "went", "come",
+    "us", "said", "told", "made", "make", "still", "always", "ever",
+    "company", "replied", "see", "more", "like", "go", "going", "came",
+    # NLTK tokeniser artefacts
+    "n't", "'s", "'re", "'ve", "'ll", "ca", "wo", "u",
 }
 
-# Complaint and praise seed vocabulary for topic mapping
-_COMPLAINT_SEEDS = {
-    "slow", "wait", "waiting", "long", "cold", "dirty", "rude", "wrong",
-    "bad", "terrible", "horrible", "awful", "worse", "worst", "never",
-    "never again", "disappointing", "disappointed", "mediocre", "overpriced",
-    "expensive", "stale", "old", "burnt", "raw", "undercooked", "mistake",
-    "order", "incorrect", "missing", "late", "delay", "delayed", "broken",
-    "disgusting", "poor", "horrible", "unprofessional", "ignored", "unfriendly",
-}
+# POS tags worth keeping: nouns and adjectives only
+_NOUN_TAGS = {"NN", "NNS", "NNP", "NNPS"}
+_ADJ_TAGS  = {"JJ", "JJR", "JJS"}
+_KEEP_POS  = _NOUN_TAGS | _ADJ_TAGS
 
-_PRAISE_SEEDS = {
-    "great", "excellent", "amazing", "fantastic", "wonderful", "best",
-    "love", "loved", "delicious", "fresh", "friendly", "helpful",
-    "professional", "quick", "fast", "efficient", "clean", "nice",
-    "perfect", "beautiful", "cozy", "warm", "recommend", "recommended",
-    "outstanding", "superb", "exceptional", "tasty", "yummy", "good",
-    "happy", "satisfied", "worth", "reasonable", "affordable",
-}
-
+# Per-review micro-topic buckets (unchanged — used in main.py)
 _TOPIC_PHRASES = {
-    "wait time": ["wait", "waiting", "long wait", "slow"],
+    "wait time":    ["wait", "waiting", "long wait", "slow"],
     "food quality": ["food", "taste", "flavor", "fresh", "cold", "stale", "raw", "burnt"],
-    "service": ["service", "staff", "server", "waiter", "waitress", "rude", "friendly"],
-    "price": ["price", "expensive", "cheap", "affordable", "value", "overpriced", "cost"],
-    "cleanliness": ["clean", "dirty", "hygiene", "mess", "spotless"],
-    "atmosphere": ["atmosphere", "ambiance", "decor", "cozy", "noisy", "loud", "quiet"],
-    "delivery": ["delivery", "deliver", "courier", "driver", "shipping"],
-    "portions": ["portion", "size", "small", "large", "filling", "enough"],
-    "parking": ["parking", "park", "lot"],
+    "service":      ["service", "staff", "server", "waiter", "waitress", "rude", "friendly"],
+    "price":        ["price", "expensive", "cheap", "affordable", "value", "overpriced", "cost"],
+    "cleanliness":  ["clean", "dirty", "hygiene", "mess", "spotless"],
+    "atmosphere":   ["atmosphere", "ambiance", "decor", "cozy", "noisy", "loud", "quiet"],
+    "delivery":     ["delivery", "deliver", "courier", "driver", "shipping"],
+    "portions":     ["portion", "size", "small", "large", "filling", "enough"],
 }
 
 
 class TopicResult(NamedTuple):
-    top_keywords: list[str]
+    top_keywords:  list[str]
     top_complaints: list[str]
-    top_praises: list[str]
+    top_praises:   list[str]
 
 
-def _tokenise(text: str) -> list[str]:
-    text = text.lower()
-    text = re.sub(r"[" + re.escape(string.punctuation) + r"]", " ", text)
-    return [w for w in text.split() if w not in _STOPWORDS and len(w) > 2]
-
+# ------------------------------------------------------------------
+# Public API
+# ------------------------------------------------------------------
 
 def extract_topics(reviews: list[dict]) -> TopicResult:
-    all_words: Counter = Counter()
-    complaint_words: Counter = Counter()
-    praise_words: Counter = Counter()
+    all_tokens:       list[str] = []
+    complaint_tokens: list[str] = []
+    praise_tokens:    list[str] = []
 
     for review in reviews:
-        text = review.get("text") or ""
+        text      = review.get("text") or ""
         sentiment = review.get("sentiment", "neutral")
-        tokens = _tokenise(text)
-        all_words.update(tokens)
+        tokens    = _pos_filter(text)
+
+        all_tokens.extend(tokens)
         if sentiment == "negative":
-            complaint_words.update(tokens)
+            complaint_tokens.extend(tokens)
         elif sentiment == "positive":
-            praise_words.update(tokens)
+            praise_tokens.extend(tokens)
 
-    top_keywords = [w for w, _ in all_words.most_common(20) if w not in _STOPWORDS]
-
-    # Map frequent complaint tokens to human-readable topics
-    top_complaints = _map_to_topics(complaint_words, _COMPLAINT_SEEDS)
-    top_praises = _map_to_topics(praise_words, _PRAISE_SEEDS)
+    top_keywords   = [w for w, _ in Counter(all_tokens).most_common(30)][:10]
+    top_complaints = _top_phrases(complaint_tokens, total_reviews=len(reviews))[:5]
+    top_praises    = _top_phrases(praise_tokens,    total_reviews=len(reviews))[:5]
 
     return TopicResult(
-        top_keywords=top_keywords[:10],
-        top_complaints=top_complaints[:5],
-        top_praises=top_praises[:5],
+        top_keywords=top_keywords,
+        top_complaints=top_complaints,
+        top_praises=top_praises,
     )
 
 
-def _map_to_topics(counter: Counter, seeds: set[str]) -> list[str]:
-    """Return seed words that appear in the counter, sorted by frequency."""
-    matched = [(word, counter[word]) for word in seeds if counter[word] > 0]
-    matched.sort(key=lambda x: x[1], reverse=True)
-    return [word for word, _ in matched]
-
-
 def review_topics(text: str) -> list[str]:
-    """Assign micro-topics to a single review text."""
+    """Assign micro-topic labels to a single review."""
     if not text:
         return []
     lower = text.lower()
-    found = []
-    for topic, keywords in _TOPIC_PHRASES.items():
-        if any(kw in lower for kw in keywords):
-            found.append(topic)
-    return found
+    return [
+        topic for topic, keywords in _TOPIC_PHRASES.items()
+        if any(kw in lower for kw in keywords)
+    ]
+
+
+# ------------------------------------------------------------------
+# Internals
+# ------------------------------------------------------------------
+
+def _pos_filter(text: str) -> list[str]:
+    """Tokenise + POS-tag text; return only nouns and adjectives."""
+    if not text:
+        return []
+    try:
+        tokens = word_tokenize(text.lower())
+        tagged = pos_tag(tokens)
+        return [
+            word for word, tag in tagged
+            if tag in _KEEP_POS
+            and word not in _STOP
+            and word.isalpha()
+            and len(word) > 2
+        ]
+    except Exception:
+        # Fallback: simple whitespace split, no POS filter
+        cleaned = re.sub(r"[^\w\s]", " ", text.lower())
+        return [
+            w for w in cleaned.split()
+            if w not in _STOP and w.isalpha() and len(w) > 2
+        ]
+
+
+def _top_phrases(tokens: list[str], total_reviews: int = 0) -> list[str]:
+    """Extract most common bigrams and trigrams as natural phrases.
+
+    min_count scales with dataset size so small runs still return results.
+    """
+    if not tokens:
+        return []
+
+    # For tiny datasets every phrase counts; for large ones require repetition
+    min_count = 2 if total_reviews >= 20 else 1
+
+    phrase_freq: Counter = Counter()
+    for n in (2, 3):
+        for gram in ngrams(tokens, n):
+            phrase_freq[" ".join(gram)] += 1
+
+    return [
+        phrase for phrase, count in phrase_freq.most_common(15)
+        if count >= min_count
+    ]
