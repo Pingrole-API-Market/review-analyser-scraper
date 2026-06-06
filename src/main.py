@@ -68,7 +68,10 @@ async def main() -> None:
                         reviews = result.get("reviews", [])
                         if reviews:
                             meta = {k: v for k, v in result.items() if k != "reviews"}
-                            await Actor.push_data([{**meta, **r} for r in reviews])
+                            flat_items = [{**meta, **r} for r in reviews]
+                            logger.info("[%s] Sample item keys/values: %s", platform,
+                                        {k: v for k, v in flat_items[0].items() if v is not None and v != ""})
+                            await Actor.push_data(flat_items)
                         logger.info("[%s] Pushed %d reviews to dataset",
                                     platform, len(reviews))
 
