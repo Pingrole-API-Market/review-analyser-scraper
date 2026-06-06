@@ -5,7 +5,6 @@
     "platform":               { "type": "string",  "description": "Review platform (trustpilot, yelp)" },
     "overall_rating":         { "type": "number",  "description": "Overall star rating shown on the platform" },
     "total_reviews":          { "type": "integer", "description": "Total number of reviews on the platform" },
-    "reviews_last_12_months": { "type": "integer", "description": "Number of scraped reviews dated within the last 12 months" },
     "rating_breakdown":       { "type": "object",  "description": "Star-count distribution: { 5_star, 4_star, 3_star, 2_star, 1_star }" },
     "reviews":                { "type": "array",   "description": "Scraped individual reviews" },
     "scraped_at":             { "type": "string",  "description": "ISO 8601 UTC timestamp of the scrape" }

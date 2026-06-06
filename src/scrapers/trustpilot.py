@@ -1,7 +1,6 @@
 """Trustpilot company reviews scraper."""
 import logging
 import re
-from datetime import datetime, timedelta, timezone
 
 from playwright.async_api import Browser, Page, async_playwright
 
@@ -27,7 +26,6 @@ class TrustpilotScraper:
             "platform": self.PLATFORM,
             "overall_rating": None,
             "total_reviews": None,
-            "reviews_last_12_months": None,
             "rating_breakdown": None,
             "reviews": [],
         }
@@ -39,7 +37,16 @@ class TrustpilotScraper:
                 await self._run(business_name, location, limit, _b, result)
                 await _b.close()
 
-        result["reviews_last_12_months"] = _count_last_12_months(result["reviews"])
+        # Fallback: compute from scraped reviews when page selectors failed
+        if result["total_reviews"] is None:
+            result["total_reviews"] = len(result["reviews"])
+        if result["rating_breakdown"] is None and result["reviews"]:
+            bd: dict[str, int] = {f"{s}_star": 0 for s in range(1, 6)}
+            for r in result["reviews"]:
+                if r.get("rating"):
+                    bd[f"{r['rating']}_star"] = bd.get(f"{r['rating']}_star", 0) + 1
+            result["rating_breakdown"] = bd
+
         logger.info("[trustpilot] Scraped %d reviews", len(result["reviews"]))
         return result
 
@@ -147,67 +154,75 @@ class TrustpilotScraper:
                 break
 
     async def _scrape_overview(self, page: Page, result: dict) -> None:
+        # Overall TrustScore — try data-attribute first, then broad text scan
         try:
-            # Overall TrustScore
-            rating_el = page.locator(
-                "span[data-rating-typography], "
-                "p[class*='displayRating'], "
-                "div[class*='trustScore'] span"
-            ).first
-            if await rating_el.count() > 0:
-                raw = clean_text(await rating_el.inner_text())
-                m = re.search(r"(\d+\.?\d*)", raw)
-                if m:
-                    result["overall_rating"] = float(m.group(1))
+            for sel in [
+                "[data-rating-typography]",
+                "[data-rating-value]",
+                "div[class*='trustScore'] [class*='typography']",
+                "div[class*='header'] [class*='rating'] p",
+            ]:
+                el = page.locator(sel).first
+                if await el.count() > 0:
+                    raw = clean_text(await el.inner_text())
+                    m = re.search(r"(\d+[.,]\d+|\d+)", raw)
+                    if m:
+                        val = float(m.group(1).replace(",", "."))
+                        if 1.0 <= val <= 5.0:
+                            result["overall_rating"] = val
+                            break
         except Exception:
             pass
 
+        # Total review count — avoid "N reviews in the last 12 months" by targeting specific elements
         try:
-            # Total review count — "All reviews (152)" or "152 total"
-            for selector in [
-                "span[data-reviews-count-typography]",
-                "p[data-reviews-count-typography]",
+            for sel in [
+                "[data-reviews-count-typography]",
                 "[class*='reviewsCount']",
-                "h2[class*='title']:has-text('reviews')",
-                "p[class*='typography']:has-text('reviews')",
+                "a[href*='?languages=all']",       # "All reviews (N)" link
+                "a[href*='?languages']:has-text('All')",
             ]:
-                count_el = page.locator(selector).first
-                if await count_el.count() > 0:
-                    raw = clean_text(await count_el.inner_text())
-                    m = re.search(r"([\d,]+)", raw)
+                el = page.locator(sel).first
+                if await el.count() > 0:
+                    raw = clean_text(await el.inner_text())
+                    # Prefer number in parentheses "(152)", else first bare number
+                    m = re.search(r"\(([\d,]+)\)", raw) or re.search(r"([\d,]+)", raw)
                     if m:
                         result["total_reviews"] = int(m.group(1).replace(",", ""))
                         break
         except Exception:
             pass
 
+        # Rating breakdown — parse histogram container text then compute counts from percentages
         try:
-            # Rating breakdown — page shows percentages; compute counts from percentage × total
-            star_rows = await page.locator(
-                "div[class*='histogram'] div[class*='row'], "
-                "div[class*='ratingDistribution'] div[class*='bar'], "
-                "[class*='ratingDistribution'] [class*='labelWrapper'], "
-                "[class*='histogram'] [class*='labelWrapper']"
-            ).all()
-            breakdown: dict[str, int] = {}
             total = result.get("total_reviews") or 0
-            for row in star_rows:
-                try:
-                    text = clean_text(await row.inner_text())
-                    stars_m = re.search(r"([1-5])\s*[- ]?star", text, re.I)
-                    # Prefer an explicit count; fall back to computing from percentage × total
-                    count_m = re.search(r"^([\d,]+)\b", text)
-                    pct_m   = re.search(r"(\d+)\s*%", text)
-                    if stars_m:
-                        key = f"{stars_m.group(1)}_star"
-                        if count_m:
-                            breakdown[key] = int(count_m.group(1).replace(",", ""))
-                        elif pct_m and total:
-                            breakdown[key] = round(int(pct_m.group(1)) / 100 * total)
-                except Exception:
-                    continue
+            breakdown: dict[str, int] = {}
+
+            histogram = page.locator(
+                "div[class*='histogram'], [class*='ratingDistribution']"
+            ).first
+            if await histogram.count() > 0:
+                full_text = clean_text(await histogram.inner_text())
+                for m in re.finditer(r"([1-5])\s*[- ]?stars?\s+(\d+)\s*%", full_text, re.I):
+                    pct = int(m.group(2))
+                    breakdown[f"{m.group(1)}_star"] = round(pct / 100 * total) if total else pct
+
+            if not breakdown:
+                # Fallback: iterate individual bar elements
+                for row in await page.locator(
+                    "div[class*='histogramBar'], div[class*='histogram'] > div > div"
+                ).all():
+                    try:
+                        text = clean_text(await row.inner_text())
+                        sm = re.search(r"([1-5])\s*[- ]?stars?", text, re.I)
+                        pm = re.search(r"(\d+)\s*%", text)
+                        if sm and pm:
+                            pct = int(pm.group(1))
+                            breakdown[f"{sm.group(1)}_star"] = round(pct / 100 * total) if total else pct
+                    except Exception:
+                        continue
+
             if breakdown:
-                # Ensure all five keys exist
                 for s in range(1, 6):
                     breakdown.setdefault(f"{s}_star", 0)
                 result["rating_breakdown"] = breakdown
@@ -328,6 +343,3 @@ def _parse_iso_date(raw: str) -> str:
     return m.group(0) if m else raw[:10]
 
 
-def _count_last_12_months(reviews: list[dict]) -> int:
-    cutoff = (datetime.now(tz=timezone.utc) - timedelta(days=365)).strftime("%Y-%m-%d")
-    return sum(1 for r in reviews if (r.get("date") or "") >= cutoff)
