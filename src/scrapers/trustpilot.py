@@ -102,23 +102,12 @@ class TrustpilotScraper:
         # Scrape business overview from the company landing page
         await self._scrape_overview(page, result)
 
-        # Scrape company details (categories, description, address, phone, email, website)
-        info_url = company_url.split("?")[0].rstrip("/") + "/info"
-        await self._scrape_company_info(page, info_url, result)
-
-        # Navigate to reviews tab
-        try:
-            reviews_link = page.locator("a[href*='/review/'][href*='?']", ).first
-            if await reviews_link.count() == 0:
-                reviews_link = page.locator("a:has-text('Reviews')").first
-            if await reviews_link.count() > 0:
-                await reviews_link.click()
-                await random_delay(1500, 2500)
-        except Exception:
-            pass  # may already be on the reviews page
+        # Navigate directly to reviews page (avoids tab-click fragility)
+        reviews_base = company_url.split("?")[0].rstrip("/")
+        await page.goto(reviews_base, wait_until="domcontentloaded", timeout=30_000)
+        await random_delay(1000, 1500)
 
         # Paginate and collect reviews
-        page_num = 1
         seen_keys: set[str] = set()
 
         while len(result["reviews"]) < limit:
@@ -151,12 +140,15 @@ class TrustpilotScraper:
                 next_href = await next_btn.get_attribute("href") or ""
                 if not next_href:
                     break
-                page_num += 1
                 url = f"{BASE_URL}{next_href}" if next_href.startswith("/") else next_href
                 await page.goto(url, wait_until="domcontentloaded", timeout=30_000)
                 await random_delay(1500, 2500)
             except Exception:
                 break
+
+        # Scrape company details last so it doesn't disrupt the review navigation
+        info_url = reviews_base + "/info"
+        await self._scrape_company_info(page, info_url, result)
 
     async def _scrape_overview(self, page: Page, result: dict) -> None:
         # Overall TrustScore — try data-attribute first, then broad text scan
