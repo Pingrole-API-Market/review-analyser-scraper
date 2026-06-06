@@ -8,7 +8,6 @@ from playwright.async_api import async_playwright
 
 from src.exporters import export_csv, export_json, export_xlsx, send_discord_summary
 from src.scrapers import SCRAPER_MAP
-from src.storage import MongoStorage
 from src.utils import now_iso
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
@@ -45,7 +44,6 @@ async def main() -> None:
             return
 
         full_location = ", ".join(p for p in [location, zip_code, country] if p)
-        storage = MongoStorage()
 
         # ── Scrape — one shared browser, platforms run sequentially ──
         all_results: list[dict] = []
@@ -71,7 +69,6 @@ async def main() -> None:
                         logger.info("[%s] Pushed %d reviews to dataset",
                                     platform, len(result.get("reviews", [])))
 
-                        storage.save_platform_result(result)
                     except Exception as exc:
                         logger.error("[%s] Scrape failed: %s", platform, exc)
                         await Actor.push_data({
@@ -82,8 +79,6 @@ async def main() -> None:
                         })
             finally:
                 await browser.close()
-
-        storage.close()
 
         if not all_results:
             logger.warning("No results from any platform")
