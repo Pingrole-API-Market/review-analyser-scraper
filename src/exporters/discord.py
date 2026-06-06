@@ -1,81 +1,66 @@
-"""Discord webhook delivery for analysis results."""
+"""Discord webhook delivery."""
+import json
 import logging
 
 import httpx
 
 logger = logging.getLogger(__name__)
 
-_SENTIMENT_COLOUR = {
-    "positive": 0x2ECC71,   # green
-    "neutral":  0xF39C12,   # amber
-    "negative": 0xE74C3C,   # red
-}
-_TREND_EMOJI = {"improving": "📈", "declining": "📉", "stable": "➡️"}
+_RATING_COLOUR = {5: 0x2ECC71, 4: 0x27AE60, 3: 0xF39C12, 2: 0xE67E22, 1: 0xE74C3C}
 
 
 async def send_discord_summary(
     webhook_url: str,
-    summary: dict,
+    results: list[dict],
     export_url: str | None = None,
     file_bytes: bytes | None = None,
     file_name: str | None = None,
 ) -> None:
-    business = summary.get("business_name", "Unknown")
-    location = summary.get("location", "")
-    sentiment = summary.get("overall_sentiment", "neutral")
-    trend = summary.get("rating_trend", "unknown")
-    avg_rating = summary.get("average_rating", "N/A")
-    total = summary.get("total_reviews_analysed", 0)
-    breakdown = summary.get("sentiment_breakdown", {})
-    complaints = summary.get("top_complaints", [])[:3]
-    praises = summary.get("top_praises", [])[:3]
-    fake_risk = summary.get("fake_review_risk", "unknown")
-    fake_count = summary.get("fake_review_count", 0)
-    scraped_at = summary.get("scraped_at", "")
+    embeds = []
+    for result in results:
+        business    = result.get("business_name", "Unknown")
+        platform    = (result.get("platform") or "").capitalize()
+        rating      = result.get("overall_rating")
+        total       = result.get("total_reviews")
+        last_12     = result.get("reviews_last_12_months")
+        scraped_at  = result.get("scraped_at", "")
+        bd          = result.get("rating_breakdown") or {}
+        review_count = len(result.get("reviews", []))
 
-    colour = _SENTIMENT_COLOUR.get(sentiment, 0x95A5A6)
-    trend_emoji = _TREND_EMOJI.get(trend, "")
+        colour = _RATING_COLOUR.get(round(rating) if rating else 0, 0x95A5A6)
 
-    fields = [
-        {"name": "📊 Overall Sentiment", "value": sentiment.capitalize(), "inline": True},
-        {"name": "⭐ Avg Rating", "value": str(avg_rating), "inline": True},
-        {"name": f"{trend_emoji} Rating Trend", "value": trend.capitalize(), "inline": True},
-        {"name": "📝 Reviews Analysed", "value": str(total), "inline": True},
-        {
-            "name": "😊 Sentiment Breakdown",
-            "value": (
-                f"Positive: {breakdown.get('positive', 0)}%\n"
-                f"Neutral: {breakdown.get('neutral', 0)}%\n"
-                f"Negative: {breakdown.get('negative', 0)}%"
-            ),
-            "inline": True,
-        },
-        {"name": "⚠️ Fake Review Risk", "value": f"{fake_risk.capitalize()} ({fake_count} flagged)", "inline": True},
-    ]
-    if complaints:
-        fields.append({"name": "🔴 Top Complaints", "value": "\n".join(f"• {c}" for c in complaints), "inline": True})
-    if praises:
-        fields.append({"name": "🟢 Top Praises", "value": "\n".join(f"• {p}" for p in praises), "inline": True})
-    if export_url:
-        fields.append({"name": "📥 Export Download", "value": f"[Download Report]({export_url})", "inline": False})
+        fields = [
+            {"name": "⭐ Overall Rating", "value": str(rating) if rating else "N/A", "inline": True},
+            {"name": "📝 Total Reviews",  "value": f"{total:,}" if total else "N/A", "inline": True},
+            {"name": "📅 Last 12 Months", "value": str(last_12) if last_12 is not None else "N/A", "inline": True},
+            {"name": "📦 Scraped",        "value": f"{review_count} reviews",        "inline": True},
+        ]
 
-    embed = {
-        "title": f"📋 Review Analysis: {business}",
-        "description": f"**{location}** — Analysis complete",
-        "color": colour,
-        "fields": fields,
-        "footer": {"text": f"Scraped at {scraped_at}"},
-    }
+        if any(bd.values()):
+            stars = "\n".join(
+                f"{'★' * i}{'☆' * (5-i)} — {bd.get(f'{i}_star', 0)}"
+                for i in range(5, 0, -1)
+            )
+            fields.append({"name": "📊 Rating Breakdown", "value": stars, "inline": False})
 
-    payload: dict = {"embeds": [embed]}
+        if export_url:
+            fields.append({"name": "📥 Download Report", "value": f"[{file_name or 'Export'}]({export_url})", "inline": False})
+
+        embeds.append({
+            "title":       f"📋 {business} — {platform}",
+            "color":       colour,
+            "fields":      fields,
+            "footer":      {"text": f"Scraped at {scraped_at}"},
+        })
+
+    payload: dict = {"embeds": embeds[:10]}  # Discord max 10 embeds per message
 
     async with httpx.AsyncClient(timeout=30) as client:
         if file_bytes and file_name:
-            # Send as multipart with the file attached
             response = await client.post(
                 webhook_url,
-                data={"payload_json": _json_str(payload)},
-                files={"file": (file_name, file_bytes, _mime_type(file_name))},
+                data={"payload_json": json.dumps(payload)},
+                files={"file": (file_name, file_bytes, _mime(file_name))},
             )
         else:
             response = await client.post(webhook_url, json=payload)
@@ -83,15 +68,10 @@ async def send_discord_summary(
     if response.status_code not in (200, 204):
         logger.error("[discord] Webhook failed: %d %s", response.status_code, response.text)
     else:
-        logger.info("[discord] Notification sent successfully")
+        logger.info("[discord] Notification sent")
 
 
-def _json_str(payload: dict) -> str:
-    import json
-    return json.dumps(payload)
-
-
-def _mime_type(filename: str) -> str:
+def _mime(filename: str) -> str:
     if filename.endswith(".csv"):
         return "text/csv"
     if filename.endswith(".xlsx"):
