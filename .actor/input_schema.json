@@ -40,8 +40,8 @@
       "type": "array",
       "editor": "select",
       "description": "Review platforms to scrape.",
-      "items": { "type": "string", "enum": ["trustpilot", "yelp"] },
-      "default": ["trustpilot", "yelp"]
+      "items": { "type": "string", "enum": ["trustpilot"] },
+      "default": ["trustpilot"]
     },
     "limit_per_platform": {
       "title": "Reviews Limit Per Platform",

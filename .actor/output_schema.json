@@ -2,7 +2,7 @@
   "actorSpecification": 1,
   "fields": {
     "business_name":          { "type": "string",  "description": "Name of the scraped business" },
-    "platform":               { "type": "string",  "description": "Review platform (trustpilot, yelp)" },
+    "platform":               { "type": "string",  "description": "Review platform (trustpilot)" },
     "overall_rating":         { "type": "number",  "description": "Overall star rating shown on the platform" },
     "total_reviews":          { "type": "integer", "description": "Total number of reviews on the platform" },
     "rating_breakdown":       { "type": "object",  "description": "Star-count distribution: { 5_star, 4_star, 3_star, 2_star, 1_star }" },
