@@ -1,8 +1,52 @@
 {
   "business_name": "Domino's Pizza",
   "location": "Berlin, Germany",
-  "platforms_scraped": [],
-  "total_reviews_analysed": 0,
-  "error": "No reviews found",
-  "scraped_at": "2026-06-05T20:09:50.820062Z"
+  "platforms_scraped": [
+    "trustpilot"
+  ],
+  "total_reviews_analysed": 1,
+  "overall_sentiment": "negative",
+  "sentiment_breakdown": {
+    "positive": 0,
+    "neutral": 0,
+    "negative": 100
+  },
+  "rating_trend": "insufficient_data",
+  "average_rating": 3.0,
+  "top_complaints": [
+    "raw",
+    "disgusting"
+  ],
+  "top_praises": [],
+  "top_keywords": [
+    "veg",
+    "chicken",
+    "raw",
+    "load",
+    "side",
+    "while",
+    "gunpowder",
+    "pepperoni",
+    "green",
+    "jalapeño"
+  ],
+  "fake_review_risk": "low",
+  "fake_review_count": 0,
+  "reviews": [
+    {
+      "platform": "trustpilot",
+      "author": "Sandra Cutler",
+      "rating": 3,
+      "text": "Raw Load Veg & chicken side!!! While the Gunpowder Chicken, Pepperoni & Green Jalapeño was fair. Too many Jalapeños really. The Loaded Veg with Chicken was disgusting. Raw veg no sauce with light sprinkle of mozzarella. All it was is the topping used on the pizzas, how hard is it to cook them a little??First & last time using Domino's",
+      "date": "2025-10-14",
+      "sentiment": "negative",
+      "sentiment_score": 0.124,
+      "topics": [
+        "food quality"
+      ],
+      "is_fake_flag": false
+    }
+  ],
+  "scraped_at": "2026-06-06T09:37:39.067412Z",
+  "export_file_url": null
 }

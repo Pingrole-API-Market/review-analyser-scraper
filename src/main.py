@@ -104,10 +104,20 @@ async def main() -> None:
         # ── Annotate reviews ──────────────────────────────────────────
         annotated: list[dict] = []
         for raw, sent in zip(all_raw_reviews, sentiment_results):
+            # When VADER returns neutral but a star rating strongly disagrees,
+            # trust the rating — it's the reviewer's explicit ground truth.
+            label, score = sent.label, sent.score
+            rating = raw.get("rating")
+            if label == "neutral" and rating is not None:
+                if rating <= 2:
+                    label, score = "negative", round(1.0 - score, 4)
+                elif rating >= 4:
+                    label, score = "positive", round(1.0 - score, 4)
+
             annotated.append({
                 **raw,
-                "sentiment": sent.label,
-                "sentiment_score": sent.score,
+                "sentiment": label,
+                "sentiment_score": score,
                 "topics": review_topics(raw.get("text", "")),
                 "is_fake_flag": fake_detector.is_fake(raw),
             })

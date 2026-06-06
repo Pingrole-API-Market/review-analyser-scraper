@@ -60,8 +60,13 @@ class YelpScraper:
         await random_delay(1500, 2500)
 
         try:
-            first_link = page.locator("h3 a[href*='/biz/'], a[class*='businessName']").first
-            await first_link.wait_for(timeout=10_000)
+            # Yelp uses dynamic class names; anchor href is stable.
+            # Filter to anchors whose href starts with /biz/ and contain
+            # visible text to avoid hidden or nav links.
+            first_link = page.locator(
+                "a[href^='/biz/'], a[href*='yelp.com/biz/']"
+            ).first
+            await first_link.wait_for(timeout=15_000)
             biz_href = await first_link.get_attribute("href")
             if not biz_href:
                 raise RuntimeError("No business link found")
