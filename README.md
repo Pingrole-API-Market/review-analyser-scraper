@@ -1,115 +1,102 @@
 # Trustpilot Review Scraper
 
-An [Apify Actor](https://apify.com/actors) that scrapes business reviews and company details from **Trustpilot** and exports structured JSON results.
+Extract **business reviews, ratings, and company details** from [Trustpilot](https://www.trustpilot.com) — no coding required. Simply enter a business name and location, and the scraper delivers structured JSON results directly in the Apify dataset, ready to download or connect to your workflows.
 
 ---
 
-## Features
+## What does Trustpilot Review Scraper do?
 
-| Capability | Detail |
+**Trustpilot Review Scraper** is an Apify Actor that automatically scrapes public business reviews from Trustpilot. It collects the full review text, star ratings, reviewer details, and company profile information — and packages it all as clean, structured JSON.
+
+🔍 Provide a **business name** and an optional **location** — the Actor finds the right Trustpilot profile and extracts everything automatically.
+
+---
+
+## What can Trustpilot Review Scraper extract?
+
+- ⭐ Overall rating and star-count breakdown (1–5 stars)
+- 📝 Full review text, title-free and clean
+- 👤 Reviewer name, country, and total reviews on their profile
+- 📅 Review date
+- ✅ Verified purchase flag and unprompted review flag
+- 🏢 Company categories, description written by the business
+- 📍 Business address, phone number, email, and website
+- 📊 Total review count directly from Trustpilot
+
+### Data you can extract from Trustpilot
+
+| Field | Description |
 |---|---|
-| **Review scraping** | Author, rating, review text, date, verified flag |
-| **Company overview** | Overall rating, total reviews, star-count breakdown |
-| **Company details** | Categories, description, address, phone, email, website |
-| **File export** | CSV · JSON · XLSX — optional, stored in Apify Key-Value store |
-| **Pagination** | Scrapes all pages up to the configured limit |
+| `overall_rating` | Average star rating on the platform (e.g. `4.8`) |
+| `total_reviews` | Total number of reviews on Trustpilot |
+| `rating_breakdown` | Count of 1 ⭐ through 5 ⭐ reviews |
+| `company_info.categories` | Business category tags (e.g. `Italian Restaurant`) |
+| `company_info.address` | Physical address of the business |
+| `company_info.phone` | Phone number |
+| `company_info.email` | Contact email |
+| `company_info.website` | Business website URL |
+| `reviews[].author` | Reviewer display name |
+| `reviews[].author_country` | Reviewer's country |
+| `reviews[].rating` | Star rating (1–5) |
+| `reviews[].feedback_text` | Full review text |
+| `reviews[].date` | Review date (YYYY-MM-DD) |
+| `reviews[].verified` | Whether the review is marked as verified |
 
 ---
 
-## Project Structure
+## Why use Trustpilot Review Scraper?
 
-```
-/
-├── src/
-│   ├── main.py                   # Actor entrypoint
-│   ├── scrapers/
-│   │   └── trustpilot.py         # Trustpilot scraper
-│   ├── exporters/
-│   │   ├── csv_exporter.py
-│   │   ├── json_exporter.py
-│   │   └── xlsx_exporter.py
-│   └── utils.py
-├── .actor/
-│   ├── actor.json
-│   ├── input_schema.json
-│   └── output_schema.json
-├── requirements.txt
-└── Dockerfile
-```
+Trustpilot does not provide a free public API for bulk review access. This Actor is a reliable alternative that:
+
+- 🚀 Runs in the cloud — no setup, no servers, no browser needed on your end
+- 🔄 Integrates with **Zapier, Make, Google Sheets**, and hundreds of other tools via the Apify platform
+- 📅 Can be **scheduled** to run automatically (daily, weekly, or any custom interval)
+- 📡 Results are instantly accessible via the **Apify API** for programmatic use
+- 💾 Supports export to **JSON, CSV, and XLSX** with a single checkbox
+- 🔍 Built-in **proxy rotation** ensures reliable scraping at scale
 
 ---
 
-## Setup
+## How to scrape Trustpilot reviews
 
-### Prerequisites
-
-- Python 3.12+
-- [Apify CLI](https://docs.apify.com/cli) (for local runs) or an Apify account (for cloud runs)
-
-### 1. Clone & install
-
-```bash
-git clone <repo-url>
-cd review-analyser-scraper
-
-python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-playwright install chromium
-```
-
-### 2. Create local input
-
-Create `storage/key_value_stores/default/INPUT.json`:
-
-```json
-{
-  "business_name": "Joe's Pizza",
-  "location": "New York, USA",
-  "zip_code": "10013",
-  "country": "US",
-  "limit_per_platform": 50,
-  "export_as_file": false,
-  "export_format": "xlsx"
-}
-```
-
-### 3. Run locally
-
-```bash
-python -m src.main
-```
+1. **Open** the Actor on [Apify Store](https://apify.com/store) and click **Try for free**
+2. **Enter** the business name (e.g. `Joe's Pizza`) and an optional location (e.g. `New York, USA`)
+3. **Set** the review limit — how many reviews to collect (default: 100, max: 500)
+4. **Enable** file export (optional) if you want a downloadable XLSX or CSV file
+5. **Click Run** — results appear in the Output tab within seconds to a few minutes
+6. **Download** the dataset as JSON, CSV, or Excel — or connect it to your tools via the API
 
 ---
 
-## Running on Apify Cloud
+## How much does it cost to scrape Trustpilot?
 
-```bash
-apify login
-apify push
-```
+Trustpilot Review Scraper runs on **Apify's consumption-based pricing** (Compute Units). A typical run scraping **50–100 reviews** costs approximately **$0.005–$0.01** — well within the **free $5 monthly credit** every Apify account receives.
 
----
+You can run this Actor **for free** dozens of times per month on the free plan. For high-volume or scheduled use, Apify's paid plans start at $49/month with generous CU allowances.
 
-## Input Schema
-
-| Field | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `business_name` | string | **Yes** | — | Name of the business to scrape |
-| `location` | string | No | — | City and country, e.g. `"New York, USA"` |
-| `zip_code` | string | No | — | Postal code to narrow search results |
-| `country` | string | No | — | ISO alpha-2 country code, e.g. `"US"` |
-| `limit_per_platform` | integer | No | `100` | Max reviews to scrape (1–500) |
-| `export_as_file` | boolean | No | `false` | Save a downloadable file in the Key-Value store |
-| `export_format` | string | No | `"xlsx"` | `"xlsx"` \| `"csv"` \| `"json"` |
-
-> Results are always available as a dataset (JSON in the Apify console and API) regardless of `export_as_file`.
+> 💡 To estimate your cost: go to the Actor's **Costs & limits** section before running, or check the CU usage after your first run in the **Log** tab.
 
 ---
 
-## Output Schema
+## Input
 
-One dataset item per run, structured as:
+The Actor has a simple, no-code input form. Key fields:
+
+| Field | Required | Default | Description |
+|---|---|---|---|
+| `business_name` | **Yes** | — | Name of the business to look up on Trustpilot |
+| `location` | No | — | City and country to narrow the search (e.g. `New York, USA`) |
+| `zip_code` | No | — | Postal code for more precise matching |
+| `country` | No | — | ISO alpha-2 country code (e.g. `US`, `DE`, `GB`) |
+| `limit_per_platform` | No | `100` | Maximum number of reviews to scrape (1–500) |
+| `export_as_file` | No | `false` | Also save a downloadable file to Key-Value store |
+| `export_format` | No | `xlsx` | File format: `xlsx`, `csv`, or `json` |
+
+---
+
+## Output example
+
+Results are always available in the **Output** tab as pretty JSON. Here is a sample:
 
 ```json
 {
@@ -138,8 +125,18 @@ One dataset item per run, structured as:
       "author_country": "US",
       "author_total_reviews": 1,
       "rating": 5,
-      "feedback_text": "One of the best pizzas I have eaten in a long time...",
+      "feedback_text": "One of the best pizzas I have eaten in a long time. Totally worth it.",
       "date": "2026-04-27",
+      "verified": false,
+      "unprompted": true
+    },
+    {
+      "author": "Doroth P.",
+      "author_country": "US",
+      "author_total_reviews": 1,
+      "rating": 3,
+      "feedback_text": "Food was super yummy, but the service wasn't the best.",
+      "date": "2025-12-09",
       "verified": false,
       "unprompted": true
     }
@@ -148,11 +145,39 @@ One dataset item per run, structured as:
 }
 ```
 
+You can download the full dataset in **JSON, CSV, or Excel** format from the Storage tab, or access it programmatically via the Apify API.
+
 ---
 
-## Architecture Notes
+## Is it legal to scrape Trustpilot?
 
-- **One shared Chromium browser** is launched in `main.py` and passed to the scraper, which uses an isolated context (separate cookies, user agent, viewport).
-- **Company info** is scraped from the `/info` sub-page of each Trustpilot company profile.
-- **Rating breakdown** is extracted from the page histogram as percentages and converted to counts (`round(pct% × total_reviews)`). If page extraction fails, counts are computed directly from the scraped reviews.
-- **Output** is always written to the Apify dataset and the key-value store `OUTPUT` key as pretty JSON. File export (xlsx/csv/json) is optional.
+This scraper only collects **publicly available** information that any visitor can see on Trustpilot without logging in — review text, star ratings, and business profile details. No private user data, passwords, or email addresses are accessed.
+
+We believe using this Actor for legitimate business purposes (competitor research, reputation monitoring, sentiment analysis) is safe. That said, you should be aware that scraped review data may contain personal names. If you operate under GDPR or similar regulations, ensure your use case has a valid legal basis for processing that data.
+
+> For more context, see [Apify's blog post on the legality of web scraping](https://blog.apify.com/is-web-scraping-legal/).
+
+---
+
+## FAQ
+
+**The Actor found the wrong business — what do I do?**
+Add a more specific `location` (city, country) and/or `country` code to narrow the Trustpilot search. The scraper picks the first result, so a precise name + location usually resolves ambiguity.
+
+**Why is `overall_rating` or `rating_breakdown` null?**
+These are scraped from the Trustpilot overview page. If the page structure differs or loads slowly, they may fall back to values computed from the scraped reviews themselves (which is still accurate for the reviews collected).
+
+**Can I scrape more than 500 reviews?**
+The limit is currently capped at 500 per run. For larger datasets, you can run the Actor multiple times or contact us to discuss a custom solution.
+
+**Where do I find the export file?**
+When `export_as_file` is enabled, the file is saved to the **Storage → Key-Value Store** tab of your run. You'll find a public download link there.
+
+**How do I schedule automatic runs?**
+In the Apify Console, open the Actor, go to **Schedules**, and set any cron-based interval (daily, weekly, etc.).
+
+---
+
+## Support
+
+Found a bug or have a feature request? Open an issue in the **Issues** tab on this Actor's page — feedback is always welcome. We're also open to building custom scraping solutions based on this Actor.
