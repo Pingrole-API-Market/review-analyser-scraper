@@ -22,23 +22,28 @@ run_input = {
 
 print("Starting Actor run…")
 run = client.actor(ACTOR_ID).call(run_input=run_input)
-print(f"Run finished — status: {run['status']}")
+print(f"Run finished — status: {run['status']}  id: {run['id']}")
 
 # Download the export file from the Key-Value Store
 kv_id = run["defaultKeyValueStoreId"]
 kv    = client.key_value_store(kv_id)
 
+all_keys = [item["key"] for item in kv.list_keys()["items"]]
+print(f"Keys in KV store: {all_keys}")
+
 found = False
-for item in kv.list_keys()["items"]:
-    key = item["key"]
-    if key.endswith((".xlsx", ".csv", ".json")) and key != "INPUT" and key != "OUTPUT":
-        record = kv.get_record(key, as_bytes=True)
+for key in all_keys:
+    if key.endswith((".xlsx", ".csv", ".json")) and key not in ("INPUT", "OUTPUT"):
+        record = kv.get_record(key)
+        value  = record["value"]
+        if isinstance(value, str):
+            value = value.encode("utf-8")
         with open(key, "wb") as f:
-            f.write(record["value"])
-        print(f"Saved: {key}  ({len(record['value'])} bytes)")
+            f.write(value)
+        print(f"Saved: {key}  ({len(value)} bytes)")
         found = True
         break
 
 if not found:
-    print("No export file found. Make sure export_as_file is True and the Actor run succeeded.")
-    print(f"KV store: https://console.apify.com/storage/key-value-stores/{kv_id}")
+    print("No export file found in KV store.")
+    print(f"Check here: https://console.apify.com/storage/key-value-stores/{kv_id}")
