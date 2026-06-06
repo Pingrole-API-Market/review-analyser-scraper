@@ -6,7 +6,7 @@ import re
 from apify import Actor
 from playwright.async_api import async_playwright
 
-from src.exporters import export_csv, export_json, export_xlsx, send_discord_summary
+from src.exporters import export_csv, export_json, export_xlsx
 from src.scrapers import SCRAPER_MAP
 from src.utils import now_iso
 
@@ -34,7 +34,6 @@ async def main() -> None:
             actor_input.get("export_as_file") or actor_input.get("export", False)
         )
         export_format: str      = actor_input.get("export_format", "xlsx").lower()
-        discord_webhook: str    = actor_input.get("discord_webhook", "")
 
         if not business_name:
             await Actor.fail(status_message="business_name is required")
@@ -114,18 +113,9 @@ async def main() -> None:
             except Exception as exc:
                 logger.error("File export failed: %s", exc)
 
-        # ── Discord notification ──────────────────────────────────────
-        if discord_webhook:
-            try:
-                await send_discord_summary(
-                    discord_webhook,
-                    results=all_results,
-                    export_url=export_file_url,
-                    file_bytes=export_bytes,
-                    file_name=export_filename,
-                )
-            except Exception as exc:
-                logger.error("Discord notification failed: %s", exc)
+        # Always set the Actor output as JSON (primary output, always available)
+        output = all_results[0] if len(all_results) == 1 else all_results
+        await Actor.set_output(output)
 
         total_reviews = sum(len(r.get("reviews", [])) for r in all_results)
         logger.info("Done — %d reviews across %d platforms", total_reviews, len(all_results))

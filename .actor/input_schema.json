@@ -73,12 +73,5 @@
       "default": "xlsx"
     },
 
-    "discord_webhook": {
-      "title": "Discord Webhook URL",
-      "type": "string",
-      "editor": "textfield",
-      "description": "Optional. Sends a summary embed to your Discord channel when the run completes. If 'Export as File' is also enabled, the file is attached to the message.",
-      "sectionCaption": "Notifications"
-    }
   }
 }

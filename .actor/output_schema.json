@@ -1,62 +1,13 @@
 {
   "actorSpecification": 1,
   "fields": {
-    "business_name":         { "type": "string",  "description": "Name of the scraped business" },
-    "platform":              { "type": "string",  "description": "Review platform (trustpilot, yelp)" },
-    "overall_rating":        { "type": "number",  "description": "Overall star rating shown on the platform" },
-    "total_reviews":         { "type": "integer", "description": "Total number of reviews on the platform" },
-    "reviews_last_12_months":{ "type": "integer", "description": "Number of scraped reviews dated within the last 12 months" },
-    "rating_breakdown":      { "type": "object",  "description": "Star-count distribution: { 5_star, 4_star, 3_star, 2_star, 1_star }" },
-    "reviews":               { "type": "array",   "description": "Scraped individual reviews" },
-    "scraped_at":            { "type": "string",  "description": "ISO 8601 UTC timestamp of the scrape" }
-  },
-  "views": {
-    "overview": {
-      "title": "Analysis Summary",
-      "transformation": {
-        "fields": [
-          "business_name",
-          "platform",
-          "overall_rating",
-          "total_reviews",
-          "reviews_last_12_months",
-          "rating_breakdown",
-          "scraped_at"
-        ]
-      },
-      "display": {
-        "component": "table",
-        "properties": {
-          "business_name":          { "label": "Business",          "format": "text"   },
-          "platform":               { "label": "Platform",          "format": "text"   },
-          "overall_rating":         { "label": "Overall Rating",    "format": "text"   },
-          "total_reviews":          { "label": "Total Reviews",     "format": "text"   },
-          "reviews_last_12_months": { "label": "Last 12 Months",   "format": "text"   },
-          "rating_breakdown":       { "label": "Rating Breakdown",  "format": "object" },
-          "scraped_at":             { "label": "Scraped At",        "format": "text"   }
-        }
-      }
-    },
-    "reviews": {
-      "title": "Individual Reviews",
-      "transformation": {
-        "fields": ["reviews"],
-        "flatten": ["reviews"]
-      },
-      "display": {
-        "component": "table",
-        "properties": {
-          "author":               { "label": "Author",         "format": "text"    },
-          "author_country":       { "label": "Country",        "format": "text"    },
-          "author_total_reviews": { "label": "Reviewer Count", "format": "text"    },
-          "rating":               { "label": "Rating",         "format": "text"    },
-          "title":                { "label": "Title",          "format": "text"    },
-          "body":                 { "label": "Review Text",    "format": "text"    },
-          "date":                 { "label": "Date",           "format": "text"    },
-          "verified":             { "label": "Verified",       "format": "boolean" },
-          "unprompted":           { "label": "Unprompted",     "format": "boolean" }
-        }
-      }
-    }
+    "business_name":          { "type": "string",  "description": "Name of the scraped business" },
+    "platform":               { "type": "string",  "description": "Review platform (trustpilot, yelp)" },
+    "overall_rating":         { "type": "number",  "description": "Overall star rating shown on the platform" },
+    "total_reviews":          { "type": "integer", "description": "Total number of reviews on the platform" },
+    "reviews_last_12_months": { "type": "integer", "description": "Number of scraped reviews dated within the last 12 months" },
+    "rating_breakdown":       { "type": "object",  "description": "Star-count distribution: { 5_star, 4_star, 3_star, 2_star, 1_star }" },
+    "reviews":                { "type": "array",   "description": "Scraped individual reviews" },
+    "scraped_at":             { "type": "string",  "description": "ISO 8601 UTC timestamp of the scrape" }
   }
 }
