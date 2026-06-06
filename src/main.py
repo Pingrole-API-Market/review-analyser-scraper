@@ -113,9 +113,10 @@ async def main() -> None:
             except Exception as exc:
                 logger.error("File export failed: %s", exc)
 
-        # Always set the Actor output as JSON (primary output, always available)
+        # Always write the full results to the OUTPUT key (shows as pretty JSON in the console)
         output = all_results[0] if len(all_results) == 1 else all_results
-        await Actor.set_output(output)
+        kv = await Actor.open_key_value_store()
+        await kv.set_value("OUTPUT", output, content_type="application/json")
 
         total_reviews = sum(len(r.get("reviews", [])) for r in all_results)
         logger.info("Done — %d reviews across %d platforms", total_reviews, len(all_results))

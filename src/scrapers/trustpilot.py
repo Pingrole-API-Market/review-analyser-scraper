@@ -163,38 +163,53 @@ class TrustpilotScraper:
             pass
 
         try:
-            # Total review count
-            count_el = page.locator(
-                "span[data-reviews-count-typography], "
-                "p[class*='reviewsCount'], "
-                "span:has-text('reviews')"
-            ).first
-            if await count_el.count() > 0:
-                raw = clean_text(await count_el.inner_text())
-                m = re.search(r"([\d,]+)", raw)
-                if m:
-                    result["total_reviews"] = int(m.group(1).replace(",", ""))
+            # Total review count — "All reviews (152)" or "152 total"
+            for selector in [
+                "span[data-reviews-count-typography]",
+                "p[data-reviews-count-typography]",
+                "[class*='reviewsCount']",
+                "h2[class*='title']:has-text('reviews')",
+                "p[class*='typography']:has-text('reviews')",
+            ]:
+                count_el = page.locator(selector).first
+                if await count_el.count() > 0:
+                    raw = clean_text(await count_el.inner_text())
+                    m = re.search(r"([\d,]+)", raw)
+                    if m:
+                        result["total_reviews"] = int(m.group(1).replace(",", ""))
+                        break
         except Exception:
             pass
 
         try:
-            # Rating breakdown (histogram bars)
-            breakdown: dict[str, int] = {"5_star": 0, "4_star": 0, "3_star": 0, "2_star": 0, "1_star": 0}
+            # Rating breakdown — page shows percentages; compute counts from percentage × total
             star_rows = await page.locator(
                 "div[class*='histogram'] div[class*='row'], "
-                "div[class*='ratingDistribution'] div[class*='bar']"
+                "div[class*='ratingDistribution'] div[class*='bar'], "
+                "[class*='ratingDistribution'] [class*='labelWrapper'], "
+                "[class*='histogram'] [class*='labelWrapper']"
             ).all()
+            breakdown: dict[str, int] = {}
+            total = result.get("total_reviews") or 0
             for row in star_rows:
                 try:
                     text = clean_text(await row.inner_text())
-                    stars_m = re.search(r"([1-5])\s*star", text, re.I)
-                    count_m = re.search(r"([\d,]+)\s*$", text)
-                    if stars_m and count_m:
+                    stars_m = re.search(r"([1-5])\s*[- ]?star", text, re.I)
+                    # Prefer an explicit count; fall back to computing from percentage × total
+                    count_m = re.search(r"^([\d,]+)\b", text)
+                    pct_m   = re.search(r"(\d+)\s*%", text)
+                    if stars_m:
                         key = f"{stars_m.group(1)}_star"
-                        breakdown[key] = int(count_m.group(1).replace(",", ""))
+                        if count_m:
+                            breakdown[key] = int(count_m.group(1).replace(",", ""))
+                        elif pct_m and total:
+                            breakdown[key] = round(int(pct_m.group(1)) / 100 * total)
                 except Exception:
                     continue
-            if any(breakdown.values()):
+            if breakdown:
+                # Ensure all five keys exist
+                for s in range(1, 6):
+                    breakdown.setdefault(f"{s}_star", 0)
                 result["rating_breakdown"] = breakdown
         except Exception:
             pass
