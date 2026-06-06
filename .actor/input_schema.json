@@ -9,21 +9,21 @@
       "type": "string",
       "editor": "textfield",
       "description": "Name of the business to analyse.",
-      "prefill": "Joe's Pizza"
+      "prefill": "Casa D' Angelo New York"
     },
     "location": {
       "title": "Location",
       "type": "string",
       "editor": "textfield",
-      "description": "City and country, e.g. 'Berlin, Germany'.",
-      "prefill": "Berlin, Germany"
+      "description": "City and country, e.g. 'New York, USA'.",
+      "prefill": "New York, USA"
     },
     "zip_code": {
       "title": "ZIP / Postal Code",
       "type": "string",
       "editor": "textfield",
       "description": "Postal code to narrow results.",
-      "prefill": "12167"
+      "prefill": "10013"
     },
     "country": {
       "title": "Country Code",
@@ -32,8 +32,8 @@
       "description": "ISO 3166-1 alpha-2 country code.",
       "enum": ["US", "DE", "FR", "GB", "IT", "ES", "NL", "CA", "AU", "CH", "AT", "BE", "PL", "SE", "NO", "DK"],
       "enumTitles": ["United States", "Germany", "France", "United Kingdom", "Italy", "Spain", "Netherlands", "Canada", "Australia", "Switzerland", "Austria", "Belgium", "Poland", "Sweden", "Norway", "Denmark"],
-      "default": "DE",
-      "prefill": "DE"
+      "default": "US",
+      "prefill": "US"
     },
     "limit_per_platform": {
       "title": "Reviews Limit Per Platform",

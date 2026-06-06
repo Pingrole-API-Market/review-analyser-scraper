@@ -181,3 +181,12 @@ In the Apify Console, open the Actor, go to **Schedules**, and set any cron-base
 ## Support
 
 Found a bug or have a feature request? Open an issue in the **Issues** tab on this Actor's page — feedback is always welcome. We're also open to building custom scraping solutions based on this Actor.
+
+---
+
+## Developer
+
+Built by **Hermann Samimi**
+
+[![GitHub](https://img.shields.io/badge/GitHub-HermannSamimi-181717?logo=github&logoColor=white)](https://github.com/HermannSamimi)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-hermann--samimi-0A66C2?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/hermann-samimi/)
