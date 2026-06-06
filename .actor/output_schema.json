@@ -1,18 +1,31 @@
 {
-  "actorOutputSchemaVersion": 1,
-  "title": "Trustpilot Review Scraper Output",
-  "type": "object",
-  "description": "Scraped reviews, ratings, and company details from Trustpilot.",
-  "properties": {
-    "dataset": {
-      "title": "Reviews Dataset",
-      "description": "All scraped reviews and business data in structured JSON format.",
-      "template": "{{links.apiDefaultDatasetUrl}}"
-    },
-    "keyValueStore": {
-      "title": "JSON Output & Export Files",
-      "description": "Pretty JSON output (OUTPUT key) and optional CSV/XLSX export files.",
-      "template": "{{links.apiDefaultKeyValueStoreUrl}}"
+  "actorSpecification": 1,
+  "fields": {
+    "business_name":    { "type": "string",  "description": "Name of the scraped business" },
+    "platform":         { "type": "string",  "description": "Review platform (trustpilot)" },
+    "overall_rating":   { "type": "number",  "description": "Overall star rating shown on the platform" },
+    "total_reviews":    { "type": "integer", "description": "Total number of reviews on the platform" },
+    "rating_breakdown": { "type": "object",  "description": "Star-count distribution: { 5_star, 4_star, 3_star, 2_star, 1_star }" },
+    "company_info":     { "type": "object",  "description": "Company details: categories, description, address, phone, email, website" },
+    "reviews":          { "type": "array",   "description": "Scraped individual reviews" },
+    "scraped_at":       { "type": "string",  "description": "ISO 8601 UTC timestamp of the scrape" }
+  },
+  "views": {
+    "overview": {
+      "title": "Overview",
+      "transformation": {
+        "fields": ["business_name", "platform", "overall_rating", "total_reviews", "scraped_at"]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "business_name":  { "label": "Business Name",  "format": "text"   },
+          "platform":       { "label": "Platform",       "format": "text"   },
+          "overall_rating": { "label": "Overall Rating", "format": "number" },
+          "total_reviews":  { "label": "Total Reviews",  "format": "number" },
+          "scraped_at":     { "label": "Scraped At",     "format": "text"   }
+        }
+      }
     }
   }
 }
