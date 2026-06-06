@@ -64,10 +64,13 @@ async def main() -> None:
                         result["scraped_at"] = now_iso()
                         all_results.append(result)
 
-                        # Push one dataset item per platform
-                        await Actor.push_data(result)
+                        # Push one flat item per review to the dataset
+                        reviews = result.get("reviews", [])
+                        meta = {k: v for k, v in result.items() if k != "reviews"}
+                        flat_items = [{**meta, **r} for r in reviews] if reviews else [meta]
+                        await Actor.push_data(flat_items)
                         logger.info("[%s] Pushed %d reviews to dataset",
-                                    platform, len(result.get("reviews", [])))
+                                    platform, len(flat_items))
 
                     except Exception as exc:
                         logger.error("[%s] Scrape failed: %s", platform, exc)
