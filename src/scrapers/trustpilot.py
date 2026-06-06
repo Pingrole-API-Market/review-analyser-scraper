@@ -60,6 +60,7 @@ class TrustpilotScraper:
             )
         except Exception as exc:
             logger.error("[trustpilot] Fatal: %s", exc)
+            raise
         finally:
             await context.close()
 
@@ -82,7 +83,7 @@ class TrustpilotScraper:
         # Navigate to company page
         try:
             biz_link = page.locator("a[href*='/review/']").first
-            await biz_link.wait_for(timeout=8_000)
+            await biz_link.wait_for(state="attached", timeout=8_000)
             biz_href = await biz_link.get_attribute("href") or ""
             company_url = f"{BASE_URL}{biz_href}" if biz_href.startswith("/") else biz_href
             await page.goto(company_url, wait_until="domcontentloaded", timeout=30_000)
