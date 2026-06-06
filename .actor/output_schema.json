@@ -3,7 +3,7 @@
   "fields": {
     "business_name":           { "type": "string",  "description": "Name of the analysed business" },
     "location":                { "type": "string",  "description": "Full location string (city, country, ZIP, country code)" },
-    "platforms_scraped":       { "type": "array",   "description": "Platforms from which reviews were successfully scraped" },
+    "platforms_scraped":       { "type": "array",   "description": "Platforms from which reviews were successfully scraped (trustpilot, yelp)" },
     "total_reviews_analysed":  { "type": "integer", "description": "Total number of reviews collected across all platforms" },
     "overall_sentiment":       { "type": "string",  "description": "Aggregate sentiment label: 'positive', 'neutral', or 'negative'" },
     "sentiment_breakdown":     { "type": "object",  "description": "Percentage share of each sentiment class: { positive, neutral, negative }" },

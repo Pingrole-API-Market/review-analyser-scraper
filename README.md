@@ -1,6 +1,6 @@
 # Business Review Analyser & Sentiment Extractor
 
-An [Apify Actor](https://apify.com/actors) that scrapes business reviews from **Google Maps**, **Trustpilot**, **Glassdoor**, and **Yelp**, runs **HuggingFace sentiment analysis**, detects fake reviews, and exports structured intelligence reports.
+An [Apify Actor](https://apify.com/actors) that scrapes business reviews from **Trustpilot** and **Yelp**, runs **HuggingFace sentiment analysis**, detects fake reviews, and exports structured intelligence reports.
 
 ---
 
@@ -8,14 +8,13 @@ An [Apify Actor](https://apify.com/actors) that scrapes business reviews from **
 
 | Capability | Detail |
 |---|---|
-| **Multi-platform scraping** | Google Maps · Trustpilot · Glassdoor · Yelp |
-| **Sentiment analysis** | `cardiffnlp/twitter-roberta-base-sentiment` (loaded once, batched) |
+| **Multi-platform scraping** | Trustpilot · Yelp |
+| **Sentiment analysis** | `cardiffnlp/twitter-roberta-base-sentiment` — loaded once, batched, INT8-quantised |
 | **Fake review detection** | Short text · burst posting · generic filler rules |
 | **Topic extraction** | Top keywords · complaints · praises |
 | **Export** | CSV · JSON · XLSX — stored in Apify Key-Value store |
 | **Discord notification** | Summary embed + file attachment via webhook |
-| **MongoDB persistence** | Upsert by composite key, no duplicates |
-| **Fault isolation** | One platform failure never stops others |
+| **Fault isolation** | One platform failing never stops the other |
 
 ---
 
@@ -26,9 +25,7 @@ An [Apify Actor](https://apify.com/actors) that scrapes business reviews from **
 ├── src/
 │   ├── main.py                   # Actor entrypoint
 │   ├── scrapers/
-│   │   ├── google.py             # Google Maps reviews
 │   │   ├── trustpilot.py         # Trustpilot reviews
-│   │   ├── glassdoor.py          # Glassdoor company reviews
 │   │   └── yelp.py               # Yelp reviews
 │   ├── analyser/
 │   │   ├── sentiment.py          # HuggingFace sentiment pipeline
@@ -39,10 +36,11 @@ An [Apify Actor](https://apify.com/actors) that scrapes business reviews from **
 │   │   ├── json_exporter.py
 │   │   ├── xlsx_exporter.py
 │   │   └── discord.py            # Discord webhook delivery
-│   ├── storage.py                # MongoDB handler
-│   └── utils.py                  # User agents, retry, helpers
-├── actor.json                    # Apify Actor manifest
-├── input_schema.json             # Actor input schema
+│   └── utils.py
+├── .actor/
+│   ├── actor.json
+│   ├── input_schema.json
+│   └── output_schema.json
 ├── requirements.txt
 ├── Dockerfile
 └── .env.example
@@ -55,8 +53,7 @@ An [Apify Actor](https://apify.com/actors) that scrapes business reviews from **
 ### Prerequisites
 
 - Python 3.12+
-- MongoDB instance (optional — actor runs without it, storage is skipped)
-- Apify account (for cloud runs) or [Apify CLI](https://docs.apify.com/cli) (for local runs)
+- [Apify CLI](https://docs.apify.com/cli) (for local runs) or an Apify account (for cloud runs)
 
 ### 1. Clone & install
 
@@ -74,12 +71,12 @@ playwright install chromium
 
 ```bash
 cp .env.example .env
-# Edit .env — set MONGODB_URI and APIFY_TOKEN
+# Edit .env — set APIFY_TOKEN for local runs
 ```
 
 ### 3. Create local input
 
-Create `INPUT.json` in the project root (Apify CLI picks this up automatically):
+Create `storage/key_value_stores/default/INPUT.json`:
 
 ```json
 {
@@ -87,21 +84,14 @@ Create `INPUT.json` in the project root (Apify CLI picks this up automatically):
   "location": "Berlin, Germany",
   "zip_code": "12167",
   "country": "DE",
-  "platforms": ["google", "trustpilot"],
+  "platforms": ["trustpilot", "yelp"],
   "limit_per_platform": 50,
-  "export": true,
-  "export_format": "csv",
-  "discord_webhook": ""
+  "export_as_file": true,
+  "export_format": "xlsx"
 }
 ```
 
 ### 4. Run locally
-
-```bash
-apify run
-```
-
-Or directly with Python (without Apify CLI):
 
 ```bash
 python -m src.main
@@ -111,16 +101,10 @@ python -m src.main
 
 ## Running on Apify Cloud
 
-### Push & deploy
-
 ```bash
 apify login
 apify push
 ```
-
-### Configure via Apify Console
-
-Set the `MONGODB_URI` environment variable under **Actor → Settings → Environment variables**.
 
 ---
 
@@ -129,14 +113,16 @@ Set the `MONGODB_URI` environment variable under **Actor → Settings → Enviro
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `business_name` | string | **Yes** | — | Name of the business |
-| `location` | string | No | — | City and country |
+| `location` | string | No | — | City and country, e.g. `"Berlin, Germany"` |
 | `zip_code` | string | No | — | Postal code |
 | `country` | string | No | — | ISO alpha-2 country code |
-| `platforms` | array | No | all | `["google","trustpilot","glassdoor","yelp"]` |
+| `platforms` | array | No | both | `["trustpilot", "yelp"]` |
 | `limit_per_platform` | integer | No | `100` | Max reviews per platform (1–500) |
-| `export` | boolean | No | `true` | Generate downloadable export file |
-| `export_format` | string | No | `"csv"` | `"csv"` \| `"json"` \| `"xlsx"` |
-| `discord_webhook` | string | No | — | Discord webhook URL for notification |
+| `export_as_file` | boolean | No | `false` | Generate a downloadable file in Key-Value store |
+| `export_format` | string | No | `"xlsx"` | `"xlsx"` \| `"csv"` \| `"json"` |
+| `discord_webhook` | string | No | — | Discord webhook URL |
+
+> **Note:** Results are always available as a dataset (table in Apify console, JSON via API) regardless of `export_as_file`. The file export is additive.
 
 ---
 
@@ -146,7 +132,7 @@ Set the `MONGODB_URI` environment variable under **Actor → Settings → Enviro
 {
   "business_name": "Joe's Pizza",
   "location": "Berlin, Germany, 12167, DE",
-  "platforms_scraped": ["google", "trustpilot"],
+  "platforms_scraped": ["trustpilot", "yelp"],
   "total_reviews_analysed": 142,
   "overall_sentiment": "neutral",
   "sentiment_breakdown": {
@@ -161,9 +147,10 @@ Set the `MONGODB_URI` environment variable under **Actor → Settings → Enviro
   "top_keywords": ["pizza", "service", "wait", "price", "staff"],
   "fake_review_risk": "low",
   "fake_review_count": 4,
+  "export_file_url": "https://api.apify.com/...",
   "reviews": [
     {
-      "platform": "google",
+      "platform": "trustpilot",
       "author": "John D.",
       "rating": 2,
       "text": "Waited 45 minutes for cold pizza.",
@@ -174,7 +161,7 @@ Set the `MONGODB_URI` environment variable under **Actor → Settings → Enviro
       "is_fake_flag": false
     }
   ],
-  "scraped_at": "2026-06-05T14:22:01Z"
+  "scraped_at": "2026-06-06T14:22:01Z"
 }
 ```
 
@@ -191,23 +178,12 @@ A review is flagged when **any** of the following are true:
 
 ---
 
-## MongoDB Collections
-
-| Collection | Purpose |
-|---|---|
-| `review_analyser.reviews` | Raw + annotated individual reviews (upsert, no duplicates) |
-| `review_analyser.analysed_results` | Aggregated per-run output (without the `reviews` array) |
-
-Composite unique index on `reviews`: `(platform, author, date, text_hash)`.
-
----
-
 ## Discord Notification
 
-When `discord_webhook` is provided the actor sends:
+When `discord_webhook` is set the actor sends:
 
-- An embed with: business name, overall sentiment, avg rating, rating trend, sentiment breakdown, fake risk, top 3 complaints, top 3 praises, and a download link (if `export=true`)
-- The export file attached directly to the message
+- An embed with: business name, overall sentiment, avg rating, rating trend, sentiment breakdown, fake risk, top 3 complaints, top 3 praises, and a download link (when `export_as_file=true`)
+- The export file attached to the message (when `export_as_file=true`)
 
 ---
 
@@ -215,15 +191,12 @@ When `discord_webhook` is provided the actor sends:
 
 | Variable | Required | Description |
 |---|---|---|
-| `MONGODB_URI` | No | Full MongoDB connection string. Actor runs without it (storage skipped). |
 | `APIFY_TOKEN` | Cloud auto-set | Required for local `apify run` |
 
 ---
 
 ## Architecture Notes
 
-- **Sentiment model** is instantiated once in `main.py` and shared across all reviews via `analyse_batch()` — no repeated model loading.
-- **Platform scrapers** run concurrently with `asyncio.gather(..., return_exceptions=True)` — a crash in one platform is caught and logged without aborting others.
-- **Retry logic** (3 attempts, exponential back-off) wraps the outer scrape call per platform.
-- **Rotating user agents** and randomised delays are applied per request inside each scraper.
-- **Playwright** runs in headless Chromium; the Docker image pre-installs the browser and pre-downloads the model to avoid cold-start latency.
+- **One shared Chromium browser** is launched in `main.py` and passed to each scraper. Platforms run sequentially — each gets an isolated context (separate cookies, user agent, viewport), then closes it. This keeps peak memory to ~model + one browser.
+- **Sentiment model** is quantised to INT8 on CPU (~125 MB vs ~500 MB FP32), loaded once, and reused via `analyse_batch()`.
+- **HuggingFace offline mode** (`TRANSFORMERS_OFFLINE=1`) is set in the Dockerfile after the model is pre-baked, so no network calls to HF Hub at runtime.
