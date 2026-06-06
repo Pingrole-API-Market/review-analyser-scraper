@@ -216,11 +216,11 @@ class YelpScraper:
                 if m:
                     rating = int(m.group(1))
 
-            # Body (Yelp does not have a separate title field)
+            # Feedback text
             body_el = card.locator(
                 "span[lang], p[class*='comment'], div[class*='comment'] p"
             ).first
-            body = clean_text(await body_el.inner_text()) if await body_el.count() > 0 else ""
+            feedback_text = clean_text(await body_el.inner_text()) if await body_el.count() > 0 else ""
 
             # Date
             date_el = card.locator("span[class*='date'], time").first
@@ -236,8 +236,7 @@ class YelpScraper:
                 "author_country": None,
                 "author_total_reviews": None,
                 "rating": rating,
-                "title": "",
-                "body": body,
+                "feedback_text": feedback_text,
                 "date": _parse_date(date_raw),
                 "verified": False,
                 "unprompted": True,
@@ -261,8 +260,7 @@ class YelpScraper:
                             "author_country": None,
                             "author_total_reviews": None,
                             "rating": int(float(rating_val)) if rating_val else None,
-                            "title": "",
-                            "body": clean_text(text),
+                            "feedback_text": clean_text(text),
                             "date": (rev.get("datePublished") or "")[:10],
                             "verified": False,
                             "unprompted": True,

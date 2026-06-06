@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 _FIELDS = [
     "platform", "business_name", "overall_rating", "total_reviews",
     "author", "author_country", "author_total_reviews",
-    "rating", "title", "body", "date", "verified", "unprompted",
+    "rating", "feedback_text", "date", "verified", "unprompted",
 ]
 
 

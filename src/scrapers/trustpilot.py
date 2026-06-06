@@ -275,24 +275,18 @@ class TrustpilotScraper:
                 if m:
                     rating = int(m.group(1))
 
-            # ── Title ─────────────────────────────────────────────────
-            title_el = card.locator(
-                "h2[data-service-review-title-typography], h2[class*='title']"
-            ).first
-            title = clean_text(await title_el.inner_text()) if await title_el.count() > 0 else ""
-
-            # ── Body ──────────────────────────────────────────────────
+            # ── Feedback text ─────────────────────────────────────────
             body_el = card.locator(
                 "p[data-service-review-text-typography], "
                 "[data-service-review-text-typography]"
             ).first
-            body = clean_text(await body_el.inner_text()) if await body_el.count() > 0 else ""
+            feedback_text = clean_text(await body_el.inner_text()) if await body_el.count() > 0 else ""
 
             # Fallback: collect all <p> text in card if still empty
-            if not body and not title:
+            if not feedback_text:
                 all_p = await card.locator("p").all()
                 parts = [clean_text(await p.inner_text()) for p in all_p if len(clean_text(await p.inner_text())) > 3]
-                body = " ".join(parts)
+                feedback_text = " ".join(parts)
 
             # ── Date ──────────────────────────────────────────────────
             date_el = card.locator("time").first
@@ -317,8 +311,7 @@ class TrustpilotScraper:
                 "author_country": author_country,
                 "author_total_reviews": author_total_reviews,
                 "rating": rating,
-                "title": title,
-                "body": body,
+                "feedback_text": feedback_text,
                 "date": date,
                 "verified": verified,
                 "unprompted": unprompted,
