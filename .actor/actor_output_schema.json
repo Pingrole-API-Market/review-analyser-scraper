@@ -1,0 +1,19 @@
+{
+  "actorOutputSchemaVersion": 1,
+  "title": "Trustpilot Review Scraper Output",
+  "description": "Scraped reviews, ratings, and company details from Trustpilot.",
+  "properties": {
+    "dataset": {
+      "title": "Reviews Dataset",
+      "description": "All scraped reviews and business data in structured JSON format.",
+      "type": "string",
+      "template": "{{links.apiDefaultDatasetUrl}}/items"
+    },
+    "keyValueStore": {
+      "title": "JSON Output & Export Files",
+      "description": "Pretty JSON output (OUTPUT key) and optional CSV/XLSX export files.",
+      "type": "string",
+      "template": "{{links.apiDefaultKeyValueStoreUrl}}"
+    }
+  }
+}

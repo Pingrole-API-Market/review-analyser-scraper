@@ -5,6 +5,7 @@
   "description": "Scrapes reviews from Trustpilot and exports to CSV/JSON/XLSX.",
   "version": "0.1",
   "input": "./input_schema.json",
+  "output": "./actor_output_schema.json",
   "storages": {
     "dataset": "./output_schema.json"
   }
