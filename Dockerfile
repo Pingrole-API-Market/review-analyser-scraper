@@ -16,15 +16,6 @@ WORKDIR /usr/src/app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Pre-download NLTK corpora so the actor never hits the network at runtime
-RUN python -c "\
-import nltk; \
-nltk.download('stopwords',                      quiet=True); \
-nltk.download('punkt_tab',                      quiet=True); \
-nltk.download('punkt',                          quiet=True); \
-nltk.download('averaged_perceptron_tagger_eng', quiet=True); \
-nltk.download('averaged_perceptron_tagger',     quiet=True)"
-
 # Install Playwright Chromium browser
 RUN playwright install chromium && playwright install-deps chromium
 
