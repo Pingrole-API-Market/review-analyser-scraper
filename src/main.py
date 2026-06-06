@@ -13,8 +13,6 @@ from src.utils import now_iso
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 logger = logging.getLogger(__name__)
 
-_SUPPORTED_PLATFORMS = list(SCRAPER_MAP.keys())
-
 
 async def main() -> None:
     async with Actor:
@@ -25,10 +23,7 @@ async def main() -> None:
         location: str        = actor_input.get("location", "")
         zip_code: str        = actor_input.get("zip_code", "")
         country: str         = actor_input.get("country", "")
-        platforms: list[str] = [
-            p.lower() for p in actor_input.get("platforms", _SUPPORTED_PLATFORMS)
-            if p.lower() in SCRAPER_MAP
-        ]
+        platforms: list[str] = list(SCRAPER_MAP.keys())  # always trustpilot
         limit_per_platform: int = int(actor_input.get("limit_per_platform", 100))
         export_as_file: bool    = bool(
             actor_input.get("export_as_file") or actor_input.get("export", False)

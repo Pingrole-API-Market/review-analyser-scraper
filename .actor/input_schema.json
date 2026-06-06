@@ -35,14 +35,6 @@
       "default": "DE",
       "prefill": "DE"
     },
-    "platforms": {
-      "title": "Platforms",
-      "type": "array",
-      "editor": "select",
-      "description": "Review platforms to scrape.",
-      "items": { "type": "string", "enum": ["trustpilot"] },
-      "default": ["trustpilot"]
-    },
     "limit_per_platform": {
       "title": "Reviews Limit Per Platform",
       "type": "integer",

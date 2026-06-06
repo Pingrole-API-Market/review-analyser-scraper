@@ -1,6 +1,6 @@
-# Business Review Analyser & Sentiment Extractor
+# Trustpilot Review Scraper
 
-An [Apify Actor](https://apify.com/actors) that scrapes business reviews from **Trustpilot** and **Yelp**, runs **HuggingFace sentiment analysis**, detects fake reviews, and exports structured intelligence reports.
+An [Apify Actor](https://apify.com/actors) that scrapes business reviews and company details from **Trustpilot** and exports structured JSON results.
 
 ---
 
@@ -8,13 +8,11 @@ An [Apify Actor](https://apify.com/actors) that scrapes business reviews from **
 
 | Capability | Detail |
 |---|---|
-| **Multi-platform scraping** | Trustpilot · Yelp |
-| **Sentiment analysis** | `cardiffnlp/twitter-roberta-base-sentiment` — loaded once, batched, INT8-quantised |
-| **Fake review detection** | Short text · burst posting · generic filler rules |
-| **Topic extraction** | Top keywords · complaints · praises |
-| **Export** | CSV · JSON · XLSX — stored in Apify Key-Value store |
-| **Discord notification** | Summary embed + file attachment via webhook |
-| **Fault isolation** | One platform failing never stops the other |
+| **Review scraping** | Author, rating, review text, date, verified flag |
+| **Company overview** | Overall rating, total reviews, star-count breakdown |
+| **Company details** | Categories, description, address, phone, email, website |
+| **File export** | CSV · JSON · XLSX — optional, stored in Apify Key-Value store |
+| **Pagination** | Scrapes all pages up to the configured limit |
 
 ---
 
@@ -25,25 +23,18 @@ An [Apify Actor](https://apify.com/actors) that scrapes business reviews from **
 ├── src/
 │   ├── main.py                   # Actor entrypoint
 │   ├── scrapers/
-│   │   ├── trustpilot.py         # Trustpilot reviews
-│   │   └── yelp.py               # Yelp reviews
-│   ├── analyser/
-│   │   ├── sentiment.py          # HuggingFace sentiment pipeline
-│   │   ├── topics.py             # Keyword & topic extraction
-│   │   └── fake_detector.py      # Fake review detection
+│   │   └── trustpilot.py         # Trustpilot scraper
 │   ├── exporters/
 │   │   ├── csv_exporter.py
 │   │   ├── json_exporter.py
-│   │   ├── xlsx_exporter.py
-│   │   └── discord.py            # Discord webhook delivery
+│   │   └── xlsx_exporter.py
 │   └── utils.py
 ├── .actor/
 │   ├── actor.json
 │   ├── input_schema.json
 │   └── output_schema.json
 ├── requirements.txt
-├── Dockerfile
-└── .env.example
+└── Dockerfile
 ```
 
 ---
@@ -67,31 +58,23 @@ pip install -r requirements.txt
 playwright install chromium
 ```
 
-### 2. Configure environment
-
-```bash
-cp .env.example .env
-# Edit .env — set APIFY_TOKEN for local runs
-```
-
-### 3. Create local input
+### 2. Create local input
 
 Create `storage/key_value_stores/default/INPUT.json`:
 
 ```json
 {
   "business_name": "Joe's Pizza",
-  "location": "Berlin, Germany",
-  "zip_code": "12167",
-  "country": "DE",
-  "platforms": ["trustpilot", "yelp"],
+  "location": "New York, USA",
+  "zip_code": "10013",
+  "country": "US",
   "limit_per_platform": 50,
-  "export_as_file": true,
+  "export_as_file": false,
   "export_format": "xlsx"
 }
 ```
 
-### 4. Run locally
+### 3. Run locally
 
 ```bash
 python -m src.main
@@ -108,95 +91,68 @@ apify push
 
 ---
 
-## Input Schema Reference
+## Input Schema
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `business_name` | string | **Yes** | — | Name of the business |
-| `location` | string | No | — | City and country, e.g. `"Berlin, Germany"` |
-| `zip_code` | string | No | — | Postal code |
-| `country` | string | No | — | ISO alpha-2 country code |
-| `platforms` | array | No | both | `["trustpilot", "yelp"]` |
-| `limit_per_platform` | integer | No | `100` | Max reviews per platform (1–500) |
-| `export_as_file` | boolean | No | `false` | Generate a downloadable file in Key-Value store |
+| `business_name` | string | **Yes** | — | Name of the business to scrape |
+| `location` | string | No | — | City and country, e.g. `"New York, USA"` |
+| `zip_code` | string | No | — | Postal code to narrow search results |
+| `country` | string | No | — | ISO alpha-2 country code, e.g. `"US"` |
+| `limit_per_platform` | integer | No | `100` | Max reviews to scrape (1–500) |
+| `export_as_file` | boolean | No | `false` | Save a downloadable file in the Key-Value store |
 | `export_format` | string | No | `"xlsx"` | `"xlsx"` \| `"csv"` \| `"json"` |
-| `discord_webhook` | string | No | — | Discord webhook URL |
 
-> **Note:** Results are always available as a dataset (table in Apify console, JSON via API) regardless of `export_as_file`. The file export is additive.
+> Results are always available as a dataset (JSON in the Apify console and API) regardless of `export_as_file`.
 
 ---
 
 ## Output Schema
 
+One dataset item per run, structured as:
+
 ```json
 {
-  "business_name": "Joe's Pizza",
-  "location": "Berlin, Germany, 12167, DE",
-  "platforms_scraped": ["trustpilot", "yelp"],
-  "total_reviews_analysed": 142,
-  "overall_sentiment": "neutral",
-  "sentiment_breakdown": {
-    "positive": 58,
-    "neutral": 23,
-    "negative": 19
+  "business_name": "Casa D'Angelo New York",
+  "platform": "trustpilot",
+  "overall_rating": 4.8,
+  "total_reviews": 15,
+  "rating_breakdown": {
+    "5_star": 12,
+    "4_star": 2,
+    "3_star": 1,
+    "2_star": 0,
+    "1_star": 0
   },
-  "rating_trend": "declining",
-  "average_rating": 3.6,
-  "top_complaints": ["slow", "cold", "rude"],
-  "top_praises": ["great", "friendly", "fresh"],
-  "top_keywords": ["pizza", "service", "wait", "price", "staff"],
-  "fake_review_risk": "low",
-  "fake_review_count": 4,
-  "export_file_url": "https://api.apify.com/...",
+  "company_info": {
+    "categories": ["Italian Restaurant", "Fine Dining Restaurant", "Pizza Restaurant"],
+    "description": "Casa D'Angelo – Best Italian Restaurant in Little Italy, NYC...",
+    "address": "146 Mulberry Street, 10013-4708, New York City, United States",
+    "phone": "2128048656",
+    "email": "cangelony@gmail.com",
+    "website": "https://cangelomulberry.com"
+  },
   "reviews": [
     {
-      "platform": "trustpilot",
-      "author": "John D.",
-      "rating": 2,
-      "text": "Waited 45 minutes for cold pizza.",
-      "date": "2026-04-10",
-      "sentiment": "negative",
-      "sentiment_score": 0.9312,
-      "topics": ["wait time", "food quality"],
-      "is_fake_flag": false
+      "author": "Stephanie Doe",
+      "author_country": "US",
+      "author_total_reviews": 1,
+      "rating": 5,
+      "feedback_text": "One of the best pizzas I have eaten in a long time...",
+      "date": "2026-04-27",
+      "verified": false,
+      "unprompted": true
     }
   ],
-  "scraped_at": "2026-06-06T14:22:01Z"
+  "scraped_at": "2026-06-06T16:32:46Z"
 }
 ```
 
 ---
 
-## Fake Review Detection Rules
-
-A review is flagged when **any** of the following are true:
-
-1. **Short text** — fewer than 10 words
-2. **Rating-only** — 5-star or 1-star with no text
-3. **Generic filler** — text matches a known filler phrase with ≤3 additional words
-4. **Author burst** — same author posted ≥3 reviews within a 7-day window in the scraped batch
-
----
-
-## Discord Notification
-
-When `discord_webhook` is set the actor sends:
-
-- An embed with: business name, overall sentiment, avg rating, rating trend, sentiment breakdown, fake risk, top 3 complaints, top 3 praises, and a download link (when `export_as_file=true`)
-- The export file attached to the message (when `export_as_file=true`)
-
----
-
-## Environment Variables
-
-| Variable | Required | Description |
-|---|---|---|
-| `APIFY_TOKEN` | Cloud auto-set | Required for local `apify run` |
-
----
-
 ## Architecture Notes
 
-- **One shared Chromium browser** is launched in `main.py` and passed to each scraper. Platforms run sequentially — each gets an isolated context (separate cookies, user agent, viewport), then closes it. This keeps peak memory to ~model + one browser.
-- **Sentiment model** is quantised to INT8 on CPU (~125 MB vs ~500 MB FP32), loaded once, and reused via `analyse_batch()`.
-- **HuggingFace offline mode** (`TRANSFORMERS_OFFLINE=1`) is set in the Dockerfile after the model is pre-baked, so no network calls to HF Hub at runtime.
+- **One shared Chromium browser** is launched in `main.py` and passed to the scraper, which uses an isolated context (separate cookies, user agent, viewport).
+- **Company info** is scraped from the `/info` sub-page of each Trustpilot company profile.
+- **Rating breakdown** is extracted from the page histogram as percentages and converted to counts (`round(pct% × total_reviews)`). If page extraction fails, counts are computed directly from the scraped reviews.
+- **Output** is always written to the Apify dataset and the key-value store `OUTPUT` key as pretty JSON. File export (xlsx/csv/json) is optional.

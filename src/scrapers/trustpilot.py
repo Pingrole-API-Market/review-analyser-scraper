@@ -27,6 +27,7 @@ class TrustpilotScraper:
             "overall_rating": None,
             "total_reviews": None,
             "rating_breakdown": None,
+            "company_info": None,
             "reviews": [],
         }
         if browser is not None:
@@ -100,6 +101,10 @@ class TrustpilotScraper:
 
         # Scrape business overview from the company landing page
         await self._scrape_overview(page, result)
+
+        # Scrape company details (categories, description, address, phone, email, website)
+        info_url = company_url.split("?")[0].rstrip("/") + "/info"
+        await self._scrape_company_info(page, info_url, result)
 
         # Navigate to reviews tab
         try:
@@ -228,6 +233,91 @@ class TrustpilotScraper:
                 result["rating_breakdown"] = breakdown
         except Exception:
             pass
+
+    async def _scrape_company_info(self, page: Page, info_url: str, result: dict) -> None:
+        info: dict = {
+            "categories": [],
+            "description": None,
+            "address": None,
+            "phone": None,
+            "email": None,
+            "website": None,
+        }
+        try:
+            await page.goto(info_url, wait_until="domcontentloaded", timeout=30_000)
+            await random_delay(1000, 1500)
+
+            # Categories (tag pills)
+            try:
+                cat_els = await page.locator(
+                    "[class*='categoryPill'], [class*='categoryTag'], "
+                    "[class*='tag'][href*='category'], [class*='BusinessCategories'] a"
+                ).all()
+                info["categories"] = [
+                    t for el in cat_els if (t := clean_text(await el.inner_text()))
+                ]
+            except Exception:
+                pass
+
+            # Description written by the company
+            try:
+                desc_el = page.locator(
+                    "[class*='businessDescription'] p, "
+                    "[class*='aboutUs'] p, "
+                    "section:has(h2:has-text('Written by')) p"
+                ).first
+                if await desc_el.count() > 0:
+                    info["description"] = clean_text(await desc_el.inner_text()) or None
+            except Exception:
+                pass
+
+            # Phone
+            try:
+                ph_el = page.locator("a[href^='tel:']").first
+                if await ph_el.count() > 0:
+                    href = (await ph_el.get_attribute("href") or "").replace("tel:", "")
+                    info["phone"] = clean_text(await ph_el.inner_text()) or href or None
+            except Exception:
+                pass
+
+            # Email
+            try:
+                em_el = page.locator("a[href^='mailto:']").first
+                if await em_el.count() > 0:
+                    href = (await em_el.get_attribute("href") or "").replace("mailto:", "")
+                    info["email"] = clean_text(await em_el.inner_text()) or href or None
+            except Exception:
+                pass
+
+            # Website (external link, not trustpilot)
+            try:
+                web_el = page.locator(
+                    "a[class*='website'], a[class*='websiteUrl'], "
+                    "[class*='contactInfo'] a[href^='http']:not([href*='trustpilot.com'])"
+                ).first
+                if await web_el.count() > 0:
+                    href = await web_el.get_attribute("href") or ""
+                    if href and "trustpilot.com" not in href:
+                        info["website"] = href
+            except Exception:
+                pass
+
+            # Address
+            try:
+                addr_el = page.locator(
+                    "[class*='address'], "
+                    "[class*='contactInfo'] li:first-child span:not([class*='icon'])"
+                ).first
+                if await addr_el.count() > 0:
+                    info["address"] = clean_text(await addr_el.inner_text()) or None
+            except Exception:
+                pass
+
+        except Exception as exc:
+            logger.debug("[trustpilot] Company info page failed: %s", exc)
+
+        if any(v for v in info.values() if v):
+            result["company_info"] = info
 
     async def _extract_review(self, card) -> dict | None:
         try:
