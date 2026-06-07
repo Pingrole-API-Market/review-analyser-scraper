@@ -30,79 +30,25 @@ Enter a **business name** and optional **location**. The Actor finds the right T
 
 ## How it works
 
-```mermaid
----
-config:
-  theme: base
-  themeVariables:
-    fontFamily: ui-sans-serif, system-ui, sans-serif
-    fontSize: 14px
-    primaryColor: '#D1FAE5'
-    primaryBorderColor: '#059669'
-    secondaryColor: '#EDE9FE'
-    secondaryBorderColor: '#7C3AED'
-    tertiaryColor: '#DBEAFE'
-    tertiaryBorderColor: '#2563EB'
-    lineColor: '#94A3B8'
-    clusterBkg: '#FFFFFF'
-    clusterBorder: '#E2E8F0'
-  themeCSS: |
-    @keyframes flow {
-      to { stroke-dashoffset: -20; }
-    }
-    .edgePath path, .flowchart-link {
-      stroke-width: 1px !important;
-      stroke-dasharray: 6 4 !important;
-      animation: flow 1s linear infinite !important;
-    }
-    .marker path, .arrowheadPath { stroke-width: 1px !important; fill: #94A3B8 !important; }
-    .cluster rect { stroke-width: 1px !important; }
-    .node rect, .node circle, .node ellipse, .node polygon { stroke-width: 1px !important; }
----
-flowchart LR
-    subgraph Request["👤 User Request"]
-        direction TB
-        R1["🏢 Business name + location"]
-        R2["📋 Review limit"]
-        R3["📁 get_as_file + format"]
-        R4["📬 Email or Discord address"]
-        R1 --> R2 --> R3 --> R4
-    end
+<p align="center">
+  <img
+    src="https://raw.githubusercontent.com/Pingrole-API-Market/review-analyser-scraper/main/docs/how-it-works.svg"
+    alt="Flow: User request → Trustpilot scrape → Apify dataset → Email or Discord delivery"
+    width="100%"
+  />
+</p>
 
-    subgraph Scrape["⭐ Trustpilot"]
-        direction LR
-        S1["🔍 Find profile"] --> S2["🕷️ Scrape reviews"] --> S3["📊 Company details"]
-    end
-
-    subgraph Apify["☁️ Apify Platform"]
-        direction LR
-        P1["💾 Dataset JSON"] --> P2["📄 Build XLSX / CSV / JSON"]
-    end
-
-    subgraph Delivery["📤 File Delivery · optional"]
-        direction LR
-        D1["📧 Email attachment"] 
-        D2["💬 Discord DM"]
-    end
-
-    R4 --> S1
-    S3 --> P1
-    P2 --> D1
-    P2 --> D2
-    P1 -.->|API / Console| U1["🖥️ View in Apify"]
-
-    classDef user fill:#FDE68A,stroke:#D97706,stroke-width:1px,color:#78350F
-    classDef trust fill:#D1FAE5,stroke:#059669,stroke-width:1px,color:#064E3B
-    classDef platform fill:#DBEAFE,stroke:#2563EB,stroke-width:1px,color:#1E3A8A
-    classDef deliver fill:#EDE9FE,stroke:#7C3AED,stroke-width:1px,color:#4C1D95
-    classDef output fill:#FFE4E6,stroke:#F43F5E,stroke-width:1px,color:#881337
-
-    class R1,R2,R3,R4 user
-    class S1,S2,S3 trust
-    class P1,P2 platform
-    class D1,D2 deliver
-    class U1 output
-```
+<table align="center">
+  <tr>
+    <td align="center"><strong>1. User Request</strong><br/>Business name, limit, file format, email or Discord</td>
+    <td align="center">→</td>
+    <td align="center"><strong>2. Trustpilot</strong><br/>Find profile, scrape reviews, company details</td>
+    <td align="center">→</td>
+    <td align="center"><strong>3. Apify</strong><br/>Save JSON dataset, build XLSX / CSV / JSON file</td>
+    <td align="center">→</td>
+    <td align="center"><strong>4. Delivery</strong><br/>Email attachment or Discord DM</td>
+  </tr>
+</table>
 
 | Step | What happens |
 |---|---|
