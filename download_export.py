@@ -1,14 +1,14 @@
 """
 Run the Actor and download the export file (XLSX/CSV/JSON) to the current directory.
-This is a companion to test.py — it does the same run but also saves the export file locally.
 """
 import os
 from apify_client import ApifyClient
 
-API_TOKEN = os.environ["APIFY_API_TOKEN"]
-ACTOR_ID  = "oyxxsUyPX6Oa4P2h0"
+from client_helpers import download_export_file
 
-client = ApifyClient(API_TOKEN)
+ACTOR_ID = "oyxxsUyPX6Oa4P2h0"
+
+client = ApifyClient(os.environ["APIFY_API_TOKEN"])
 
 run_input = {
     "business_name": "Casa D' Angelo New York",
@@ -24,28 +24,10 @@ print("Starting Actor run…")
 run = client.actor(ACTOR_ID).call(run_input=run_input)
 print(f"Run finished — status: {run['status']}  id: {run['id']}")
 
-# Download the export file from the Key-Value Store
-kv_id = run["defaultKeyValueStoreId"]
-kv    = client.key_value_store(kv_id)
-
-all_keys = [item["key"] for item in kv.list_keys()["items"]]
-print(f"Keys in KV store: {all_keys}")
-
-found = False
-for key in all_keys:
-    if not key.startswith("export-") or not key.endswith((".xlsx", ".csv", ".json")):
-        continue
-    record = kv.get_record(key)
-    value  = record["value"]
-    if isinstance(value, str):
-        value = value.encode("utf-8")
-    save_as = key.removeprefix("export-")
-    with open(save_as, "wb") as f:
-        f.write(value)
-    print(f"Saved: {save_as}  ({len(value)} bytes)")
-    found = True
-    break
-
-if not found:
-    print("No export file found in KV store.")
+path = download_export_file(client, run)
+if path:
+    print(f"Saved: {path.resolve()}")
+else:
+    kv_id = run["defaultKeyValueStoreId"]
+    print("No export file found in Key-Value store.")
     print(f"Check here: https://console.apify.com/storage/key-value-stores/{kv_id}")
