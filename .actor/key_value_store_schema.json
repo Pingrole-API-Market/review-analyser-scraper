@@ -1,18 +1,8 @@
 {
   "actorKeyValueStoreSchemaVersion": 1,
   "title": "Review Scraper Key-Value Store",
-  "description": "JSON output and optional export files (CSV, XLSX, JSON).",
+  "description": "JSON output from the Actor run.",
   "collections": {
-    "exports": {
-      "title": "Export Files",
-      "description": "Downloadable review export files generated when 'Export as File' is enabled.",
-      "keyPrefix": "export-",
-      "contentTypes": [
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "text/csv",
-        "application/json"
-      ]
-    },
     "output": {
       "title": "JSON Output",
       "description": "Pretty-printed JSON summary of scraped results.",

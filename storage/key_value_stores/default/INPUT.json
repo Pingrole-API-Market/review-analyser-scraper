@@ -1,8 +1,9 @@
 {
   "business_name": "Domino's Pizza",
   "location": "Berlin, Germany",
-  "platforms": ["trustpilot"],
   "limit_per_platform": 10,
-  "export_as_file": true,
-  "export_format": "xlsx"
+  "get_as_file": false,
+  "export_format": "xlsx",
+  "destination_platform": "email",
+  "destination_address": ""
 }

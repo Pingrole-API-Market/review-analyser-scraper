@@ -52,7 +52,7 @@ Trustpilot does not provide a free public API for bulk review access. This Actor
 - 🔄 Integrates with **Zapier, Make, Google Sheets**, and hundreds of other tools via the Apify platform
 - 📅 Can be **scheduled** to run automatically (daily, weekly, or any custom interval)
 - 📡 Results are instantly accessible via the **Apify API** for programmatic use
-- 💾 Supports export to **JSON, CSV, and XLSX** with a single checkbox
+- 💾 Optionally **emails or Discord-DMs** a report file (JSON, CSV, or XLSX)
 - 🔍 Built-in **proxy rotation** ensures reliable scraping at scale
 
 ---
@@ -62,9 +62,9 @@ Trustpilot does not provide a free public API for bulk review access. This Actor
 1. **Open** the Actor on [Apify Store](https://apify.com/store) and click **Try for free**
 2. **Enter** the business name (e.g. `Joe's Pizza`) and an optional location (e.g. `New York, USA`)
 3. **Set** the review limit — how many reviews to collect (default: 100, max: 500)
-4. **Enable** file export (optional) if you want a downloadable XLSX or CSV file
+4. **Enable** file delivery (optional) to receive a report by **email** or **Discord DM**
 5. **Click Run** — results appear in the Output tab within seconds to a few minutes
-6. **Download** the dataset as JSON, CSV, or Excel — or connect it to your tools via the API
+6. **Download** the dataset as JSON from the Storage tab, or connect it to your tools via the API
 
 ---
 
@@ -89,8 +89,28 @@ The Actor has a simple, no-code input form. Key fields:
 | `zip_code` | No | — | Postal code for more precise matching |
 | `country` | No | — | ISO alpha-2 country code (e.g. `US`, `DE`, `GB`) |
 | `limit_per_platform` | No | `100` | Maximum number of reviews to scrape (1–500) |
-| `export_as_file` | No | `false` | Also save a downloadable file to Key-Value store |
+| `get_as_file` | No | `false` | Generate and send a report file by email or Discord |
 | `export_format` | No | `xlsx` | File format: `xlsx`, `csv`, or `json` |
+| `destination_platform` | No | `email` | `email` or `discord` |
+| `destination_address` | When sending | — | Email address or Discord username |
+
+### File delivery setup
+
+Configure these **Apify secrets** on the Actor (Settings → Secrets):
+
+| Secret | Purpose |
+|---|---|
+| `PINGROLE_EMAIL` | Office365 sender address |
+| `PINGROLE_PASSWORD` | Office365 SMTP password |
+| `DISCORD_TOKEN` | Discord bot token for DMs |
+| `DISCORD_INFRA_CHANNEL_ID` | Channel ID used to resolve the guild for member lookup |
+| `DISCORD_WEBHOOK_URL` | Optional — alerts when delivery fails |
+
+**Discord:** the recipient must join the [Pingrole server](https://discord.gg/p5aCRvkHWE) first so the bot can find their username and send a DM with the file attached.
+
+**Email:** the report is sent as an attachment from the configured `PINGROLE_EMAIL` address.
+
+If delivery fails (user not in Discord server, bad email, missing secrets), the run still **succeeds** and `delivery_status` in the OUTPUT shows the error.
 
 ---
 
@@ -141,11 +161,18 @@ Results are always available in the **Output** tab as pretty JSON. Here is a sam
       "unprompted": true
     }
   ],
-  "scraped_at": "2026-06-06T16:32:46Z"
+  "scraped_at": "2026-06-06T16:32:46Z",
+  "delivery_status": {
+    "success": true,
+    "platform": "email",
+    "destination": "you@example.com",
+    "filename": "casa_d_angelo_new_york_reviews.xlsx",
+    "error": null
+  }
 }
 ```
 
-You can download the full dataset in **JSON, CSV, or Excel** format from the Storage tab, or access it programmatically via the Apify API.
+You can download the full dataset as **JSON** from the Storage tab, or access it programmatically via the Apify API. When file delivery is enabled, the file is sent to your email or Discord — it is not stored in the Key-Value store.
 
 ---
 
@@ -170,8 +197,8 @@ These are scraped from the Trustpilot overview page. If the page structure diffe
 **Can I scrape more than 500 reviews?**
 The limit is currently capped at 500 per run. For larger datasets, you can run the Actor multiple times or contact us to discuss a custom solution.
 
-**Where do I find the export file?**
-When `export_as_file` is enabled, the file is saved to the **Storage → Key-Value Store** tab of your run. You'll find a public download link there.
+**How do I receive the report file?**
+Enable `get_as_file`, choose `destination_platform` (`email` or `discord`), and set `destination_address`. For Discord, join the [Pingrole server](https://discord.gg/p5aCRvkHWE) first. Check `delivery_status` in the OUTPUT tab if the file did not arrive.
 
 **How do I schedule automatic runs?**
 In the Apify Console, open the Actor, go to **Schedules**, and set any cron-based interval (daily, weekly, etc.).

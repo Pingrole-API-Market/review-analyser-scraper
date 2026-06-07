@@ -2,7 +2,7 @@
   "actorSpecification": 1,
   "name": "business-review-analyser",
   "title": "Business Review Analyser & Sentiment Extractor",
-  "description": "Scrapes reviews from Trustpilot and exports to CSV/JSON/XLSX.",
+  "description": "Scrapes reviews from Trustpilot and optionally sends reports via email or Discord.",
   "version": "0.1",
   "input": "./input_schema.json",
   "output": "./actor_output_schema.json",

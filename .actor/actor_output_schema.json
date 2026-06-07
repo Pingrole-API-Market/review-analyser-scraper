@@ -9,12 +9,6 @@
       "type": "string",
       "template": "{{links.apiDefaultDatasetUrl}}/items"
     },
-    "exportFiles": {
-      "title": "Export Files",
-      "description": "Downloadable CSV, XLSX, or JSON export (when 'Export as File' is enabled).",
-      "type": "string",
-      "template": "{{links.apiDefaultKeyValueStoreUrl}}/keys?collection=exports"
-    },
     "jsonOutput": {
       "title": "JSON Output",
       "description": "Pretty JSON summary stored in the OUTPUT key.",

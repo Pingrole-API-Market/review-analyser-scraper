@@ -46,24 +46,38 @@
       "maximum": 500
     },
 
-    "export_as_file": {
-      "title": "Export as File",
+    "get_as_file": {
+      "title": "Send Results as File",
       "type": "boolean",
       "editor": "checkbox",
-      "description": "Generate a downloadable file (CSV / XLSX / JSON) stored in Key-Value store. The structured dataset is always available as a table in the Apify console and as JSON via the API — this option is only needed if you want a standalone file.",
+      "description": "Generate a file (CSV / XLSX / JSON) and send it to your email or Discord.",
       "default": false,
-      "sectionCaption": "File Export",
-      "sectionDescription": "Optional. Results are always available as a dataset (table view in console, JSON in API). Enable this only if you also need a downloadable file."
+      "sectionCaption": "File Delivery",
+      "sectionDescription": "Optional. Results are always available in the dataset. Enable this to receive a file by email or Discord DM."
     },
     "export_format": {
-      "title": "Export Format",
+      "title": "File Format",
       "type": "string",
       "editor": "select",
-      "description": "File format — only used when 'Export as File' is enabled.",
+      "description": "Format of the file sent when 'Send Results as File' is enabled.",
       "enum": ["xlsx", "csv", "json"],
       "enumTitles": ["XLSX (Excel)", "CSV", "JSON"],
       "default": "xlsx"
     },
-
+    "destination_platform": {
+      "title": "Destination",
+      "type": "string",
+      "editor": "select",
+      "description": "Where to send the file — email attachment or Discord DM.",
+      "enum": ["email", "discord"],
+      "enumTitles": ["Email", "Discord"],
+      "default": "email"
+    },
+    "destination_address": {
+      "title": "Email or Discord Username",
+      "type": "string",
+      "editor": "textfield",
+      "description": "Email address for delivery, or Discord username for DM. For Discord, you must join the Pingrole server first: https://discord.gg/p5aCRvkHWE"
+    }
   }
 }
