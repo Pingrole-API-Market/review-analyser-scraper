@@ -1,70 +1,154 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 340" role="img" aria-label="Trustpilot Review Scraper flow: user request, Trustpilot scrape, Apify platform, email and Discord delivery">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 420" role="img" aria-label="Trustpilot Review Scraper workflow">
   <defs>
-    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-      <path d="M0,0 L8,4 L0,8 Z" fill="#94A3B8"/>
-    </marker>
-    <filter id="shadow" x="-4%" y="-4%" width="108%" height="108%">
-      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.08"/>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F8FAFC"/>
+      <stop offset="100%" stop-color="#EEF2FF"/>
+    </linearGradient>
+    <linearGradient id="userGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FEF9C3"/>
+      <stop offset="100%" stop-color="#FDE68A"/>
+    </linearGradient>
+    <linearGradient id="tpGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#D1FAE5"/>
+      <stop offset="100%" stop-color="#6EE7B7"/>
+    </linearGradient>
+    <linearGradient id="apifyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#DBEAFE"/>
+      <stop offset="100%" stop-color="#93C5FD"/>
+    </linearGradient>
+    <linearGradient id="deliverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EDE9FE"/>
+      <stop offset="100%" stop-color="#C4B5FD"/>
+    </linearGradient>
+    <linearGradient id="arrowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#94A3B8"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+    <filter id="cardShadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0F172A" flood-opacity="0.10"/>
     </filter>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <marker id="arrowHead" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#6366F1"/>
+    </marker>
   </defs>
 
-  <rect width="960" height="340" fill="#FAFAFA" rx="12"/>
+  <!-- Background -->
+  <rect width="1120" height="420" rx="24" fill="url(#bg)"/>
+  <circle cx="90" cy="60" r="70" fill="#FDE68A" opacity="0.25"/>
+  <circle cx="980" cy="360" r="90" fill="#C4B5FD" opacity="0.22"/>
+  <circle cx="560" cy="30" r="50" fill="#6EE7B7" opacity="0.18"/>
 
-  <!-- User Request -->
-  <g filter="url(#shadow)">
-    <rect x="20" y="30" width="200" height="280" rx="10" fill="#FFFBEB" stroke="#D97706" stroke-width="1.5"/>
-    <text x="120" y="58" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="14" font-weight="700" fill="#78350F">User Request</text>
-    <rect x="36" y="78" width="168" height="38" rx="6" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1"/>
-    <text x="120" y="102" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12" fill="#78350F">Business + location</text>
-    <rect x="36" y="126" width="168" height="38" rx="6" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1"/>
-    <text x="120" y="150" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12" fill="#78350F">Review limit</text>
-    <rect x="36" y="174" width="168" height="38" rx="6" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1"/>
-    <text x="120" y="198" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12" fill="#78350F">get_as_file + format</text>
-    <rect x="36" y="222" width="168" height="38" rx="6" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1"/>
-    <text x="120" y="246" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12" fill="#78350F">Email or Discord</text>
+  <!-- Title -->
+  <text x="560" y="42" text-anchor="middle" font-family="ui-sans-serif, system-ui, -apple-system, sans-serif" font-size="22" font-weight="700" fill="#0F172A">How Trustpilot Review Scraper works</text>
+  <text x="560" y="66" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" fill="#64748B">From your request to inbox or Discord — in one automated run</text>
+
+  <!-- Connectors -->
+  <path d="M248 230 H272" stroke="url(#arrowGrad)" stroke-width="2.5" marker-end="url(#arrowHead)"/>
+  <path d="M498 230 H522" stroke="url(#arrowGrad)" stroke-width="2.5" marker-end="url(#arrowHead)"/>
+  <path d="M748 215 C770 195, 790 195, 812 175" stroke="url(#arrowGrad)" stroke-width="2.5" fill="none" marker-end="url(#arrowHead)"/>
+  <path d="M748 245 C770 265, 790 265, 812 285" stroke="url(#arrowGrad)" stroke-width="2.5" fill="none" marker-end="url(#arrowHead)"/>
+  <path d="M620 310 C620 340, 520 350, 420 350" stroke="#F43F5E" stroke-width="1.5" stroke-dasharray="5 4" fill="none" opacity="0.7"/>
+  <text x="520" y="368" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#BE123C">Always available in Apify Console &amp; API</text>
+
+  <!-- Card 1: User -->
+  <g filter="url(#cardShadow)">
+    <rect x="40" y="95" width="208" height="270" rx="18" fill="#FFFFFF" stroke="#F59E0B" stroke-width="1.5"/>
+    <rect x="40" y="95" width="208" height="56" rx="18" fill="url(#userGrad)"/>
+    <rect x="40" y="133" width="208" height="18" fill="url(#userGrad)"/>
+    <circle cx="68" cy="123" r="16" fill="#FFFFFF" opacity="0.85"/>
+    <text x="68" y="128" text-anchor="middle" font-size="16">👤</text>
+    <text x="144" y="118" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" fill="#78350F">Your request</text>
+    <text x="144" y="136" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#92400E">Step 1</text>
+
+    <rect x="58" y="168" width="172" height="42" rx="10" fill="#FFFBEB" stroke="#FCD34D" stroke-width="1"/>
+    <text x="144" y="186" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="600" fill="#78350F">Business + location</text>
+    <text x="144" y="202" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#A16207">Name, city, country, limit</text>
+
+    <rect x="58" y="220" width="172" height="42" rx="10" fill="#FFFBEB" stroke="#FCD34D" stroke-width="1"/>
+    <text x="144" y="238" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="600" fill="#78350F">File delivery</text>
+    <text x="144" y="254" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#A16207">get_as_file + format</text>
+
+    <rect x="58" y="272" width="172" height="42" rx="10" fill="#FFFBEB" stroke="#FCD34D" stroke-width="1"/>
+    <text x="144" y="290" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="600" fill="#78350F">Destination</text>
+    <text x="144" y="306" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#A16207">Email address or Discord user</text>
   </g>
 
-  <!-- Trustpilot -->
-  <g filter="url(#shadow)">
-    <rect x="250" y="30" width="200" height="280" rx="10" fill="#ECFDF5" stroke="#059669" stroke-width="1.5"/>
-    <text x="350" y="58" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="14" font-weight="700" fill="#064E3B">Trustpilot</text>
-    <rect x="266" y="110" width="168" height="44" rx="6" fill="#D1FAE5" stroke="#10B981" stroke-width="1"/>
-    <text x="350" y="137" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12" fill="#064E3B">Find profile</text>
-    <rect x="266" y="168" width="168" height="44" rx="6" fill="#D1FAE5" stroke="#10B981" stroke-width="1"/>
-    <text x="350" y="195" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12" fill="#064E3B">Scrape reviews</text>
-    <rect x="266" y="226" width="168" height="44" rx="6" fill="#D1FAE5" stroke="#10B981" stroke-width="1"/>
-    <text x="350" y="253" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12" fill="#064E3B">Company details</text>
+  <!-- Card 2: Trustpilot -->
+  <g filter="url(#cardShadow)">
+    <rect x="272" y="95" width="226" height="270" rx="18" fill="#FFFFFF" stroke="#059669" stroke-width="1.5"/>
+    <rect x="272" y="95" width="226" height="56" rx="18" fill="url(#tpGrad)"/>
+    <rect x="272" y="133" width="226" height="18" fill="url(#tpGrad)"/>
+    <circle cx="300" cy="123" r="16" fill="#FFFFFF" opacity="0.9"/>
+    <text x="300" y="128" text-anchor="middle" font-size="15">⭐</text>
+    <text x="398" y="118" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" fill="#064E3B">Trustpilot</text>
+    <text x="398" y="136" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#047857">Step 2 · Scrape</text>
+
+    <rect x="290" y="168" width="190" height="48" rx="10" fill="#ECFDF5" stroke="#34D399" stroke-width="1"/>
+    <text x="385" y="188" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="600" fill="#065F46">Find business profile</text>
+    <text x="385" y="206" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#059669">Match name + location on trustpilot.com</text>
+
+    <rect x="290" y="226" width="190" height="48" rx="10" fill="#ECFDF5" stroke="#34D399" stroke-width="1"/>
+    <text x="385" y="246" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="600" fill="#065F46">Extract reviews</text>
+    <text x="385" y="264" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#059669">Ratings, text, dates, reviewers</text>
+
+    <rect x="290" y="284" width="190" height="48" rx="10" fill="#ECFDF5" stroke="#34D399" stroke-width="1"/>
+    <text x="385" y="304" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="600" fill="#065F46">Company details</text>
+    <text x="385" y="322" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#059669">Address, phone, website, categories</text>
   </g>
 
-  <!-- Apify -->
-  <g filter="url(#shadow)">
-    <rect x="480" y="30" width="200" height="280" rx="10" fill="#EFF6FF" stroke="#2563EB" stroke-width="1.5"/>
-    <text x="580" y="58" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="14" font-weight="700" fill="#1E3A8A">Apify Platform</text>
-    <rect x="496" y="120" width="168" height="50" rx="6" fill="#DBEAFE" stroke="#3B82F6" stroke-width="1"/>
-    <text x="580" y="150" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12" fill="#1E3A8A">Dataset JSON</text>
-    <rect x="496" y="190" width="168" height="50" rx="6" fill="#DBEAFE" stroke="#3B82F6" stroke-width="1"/>
-    <text x="580" y="212" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12" fill="#1E3A8A">Build XLSX</text>
-    <text x="580" y="228" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12" fill="#1E3A8A">CSV / JSON</text>
-    <rect x="496" y="260" width="168" height="36" rx="6" fill="#FFE4E6" stroke="#F43F5E" stroke-width="1"/>
-    <text x="580" y="282" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" fill="#881337">View in Console / API</text>
+  <!-- Card 3: Apify -->
+  <g filter="url(#cardShadow)">
+    <rect x="522" y="95" width="226" height="270" rx="18" fill="#FFFFFF" stroke="#2563EB" stroke-width="1.5"/>
+    <rect x="522" y="95" width="226" height="56" rx="18" fill="url(#apifyGrad)"/>
+    <rect x="522" y="133" width="226" height="18" fill="url(#apifyGrad)"/>
+    <circle cx="550" cy="123" r="16" fill="#FFFFFF" opacity="0.9"/>
+    <text x="550" y="128" text-anchor="middle" font-size="15">☁️</text>
+    <text x="648" y="118" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" fill="#1E3A8A">Apify Platform</text>
+    <text x="648" y="136" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#1D4ED8">Step 3 · Process</text>
+
+    <rect x="540" y="168" width="190" height="56" rx="10" fill="#EFF6FF" stroke="#60A5FA" stroke-width="1"/>
+    <text x="635" y="190" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="600" fill="#1E40AF">Structured dataset</text>
+    <text x="635" y="208" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#2563EB">JSON in Apify storage</text>
+
+    <rect x="540" y="234" width="190" height="56" rx="10" fill="#EFF6FF" stroke="#60A5FA" stroke-width="1"/>
+    <text x="635" y="254" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="600" fill="#1E40AF">Build report file</text>
+    <text x="635" y="272" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#2563EB">XLSX · CSV · JSON</text>
+
+    <rect x="540" y="300" width="190" height="40" rx="10" fill="#FFF1F2" stroke="#FB7185" stroke-width="1"/>
+    <text x="635" y="325" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="600" fill="#BE123C">View anytime in Console / API</text>
   </g>
 
-  <!-- Delivery -->
-  <g filter="url(#shadow)">
-    <rect x="710" y="30" width="230" height="280" rx="10" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5"/>
-    <text x="825" y="58" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="14" font-weight="700" fill="#4C1D95">File Delivery</text>
-    <text x="825" y="76" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" fill="#6D28D9">optional</text>
-    <rect x="726" y="120" width="198" height="56" rx="6" fill="#EDE9FE" stroke="#8B5CF6" stroke-width="1"/>
-    <text x="825" y="145" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" fill="#4C1D95">Email attachment</text>
-    <text x="825" y="163" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" fill="#6D28D9">XLSX � CSV � JSON</text>
-    <rect x="726" y="200" width="198" height="56" rx="6" fill="#EDE9FE" stroke="#8B5CF6" stroke-width="1"/>
-    <text x="825" y="225" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" fill="#4C1D95">Discord DM</text>
-    <text x="825" y="243" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" fill="#6D28D9">XLSX � CSV � JSON</text>
-  </g>
+  <!-- Card 4: Delivery -->
+  <g filter="url(#cardShadow)">
+    <rect x="812" y="95" width="268" height="270" rx="18" fill="#FFFFFF" stroke="#7C3AED" stroke-width="1.5"/>
+    <rect x="812" y="95" width="268" height="56" rx="18" fill="url(#deliverGrad)"/>
+    <rect x="812" y="133" width="268" height="18" fill="url(#deliverGrad)"/>
+    <circle cx="840" cy="123" r="16" fill="#FFFFFF" opacity="0.9"/>
+    <text x="840" y="128" text-anchor="middle" font-size="15">📤</text>
+    <text x="960" y="118" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" fill="#4C1D95">File delivery</text>
+    <text x="960" y="136" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#6D28D9">Step 4 · Optional</text>
 
-  <!-- Arrows -->
-  <line x1="220" y1="170" x2="248" y2="170" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <line x1="450" y1="170" x2="478" y2="170" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <line x1="680" y1="155" x2="724" y2="145" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <line x1="680" y1="210" x2="724" y2="230" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <!-- Email pill -->
+    <rect x="830" y="162" width="232" height="88" rx="14" fill="#FFF7ED" stroke="#FB923C" stroke-width="1.5"/>
+    <circle cx="862" cy="206" r="22" fill="#FFEDD5"/>
+    <text x="862" y="212" text-anchor="middle" font-size="20">📧</text>
+    <text x="960" y="196" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700" fill="#9A3412">Email</text>
+    <text x="960" y="214" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#C2410C">Attachment to your inbox</text>
+    <text x="960" y="232" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#EA580C">Office365 · XLSX / CSV / JSON</text>
+
+    <!-- Discord pill -->
+    <rect x="830" y="262" width="232" height="88" rx="14" fill="#EEF2FF" stroke="#5865F2" stroke-width="1.5"/>
+    <circle cx="862" cy="306" r="22" fill="#E0E7FF"/>
+    <text x="862" y="312" text-anchor="middle" font-size="20">💬</text>
+    <text x="960" y="296" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700" fill="#312E81">Discord</text>
+    <text x="960" y="314" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#4338CA">DM with file attached</text>
+    <text x="960" y="332" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" fill="#4F46E5">Join Pingrole server first</text>
+  </g>
 </svg>

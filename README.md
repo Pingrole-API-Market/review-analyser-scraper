@@ -1,97 +1,108 @@
 <p align="center">
-  <img src="https://cdn.trustpilot.net/brand-assets/4.3.0/logo-black.svg" alt="Trustpilot logo" width="220" />
+  <img src="https://cdn.trustpilot.net/brand-assets/4.3.0/logo-black.svg" alt="Trustpilot review scraper logo" width="220" />
 </p>
 
 <p align="center">
-  <a href="https://apify.com"><img src="https://img.shields.io/badge/Platform-Apify-2463EB?logo=apify&logoColor=white" alt="Apify platform" /></a>
-  <a href="https://www.python.org"><img src="https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white" alt="Python" /></a>
-  <a href="https://www.trustpilot.com"><img src="https://img.shields.io/badge/Source-Trustpilot-00B67A?logo=trustpilot&logoColor=white" alt="Trustpilot" /></a>
-  <img src="https://img.shields.io/badge/Output-XLSX%20%7C%20CSV%20%7C%20JSON-059669" alt="Output formats" />
-  <img src="https://img.shields.io/badge/Delivery-Email%20%26%20Discord-5865F2?logo=discord&logoColor=white" alt="Email and Discord delivery" />
-  <img src="https://img.shields.io/badge/API-apify--client-F59E0B" alt="Apify API" />
+  <a href="https://apify.com"><img src="https://img.shields.io/badge/Platform-Apify-2463EB?logo=apify&logoColor=white" alt="Runs on Apify cloud" /></a>
+  <a href="https://www.trustpilot.com"><img src="https://img.shields.io/badge/Scrape-Trustpilot-00B67A" alt="Scrape Trustpilot reviews" /></a>
+  <img src="https://img.shields.io/badge/Delivery-Email%20%7C%20Discord-5865F2?logo=discord&logoColor=white" alt="Email and Discord file delivery" />
+  <img src="https://img.shields.io/badge/Export-XLSX%20%7C%20CSV%20%7C%20JSON-059669" alt="Export formats" />
+  <img src="https://img.shields.io/badge/Apify%20API-Supported-F59E0B" alt="Apify API supported" />
 </p>
 
 <p align="center">
-  <strong>Scrape Trustpilot reviews — get results in Apify, your inbox, or Discord.</strong><br/>
-  No coding required. Enter a <strong>business name</strong>, optionally enable <strong>file delivery</strong>, and receive a report as <strong>XLSX, CSV, or JSON</strong>.
+  <strong>No coding required.</strong> Enter a business name on Trustpilot — get structured review data in Apify, or have the report sent to your <strong>email</strong> or <strong>Discord</strong> as Excel, CSV, or JSON.
 </p>
 
 ---
 
 ## What does Trustpilot Review Scraper do?
 
-**Trustpilot Review Scraper** is an [Apify Actor](https://apify.com) that extracts public **business reviews, ratings, and company details** from [Trustpilot](https://www.trustpilot.com). There is no official free Trustpilot API for bulk review access — this Actor is a reliable, cloud-based alternative.
+**Trustpilot Review Scraper** is an [Apify Actor](https://apify.com) that **scrapes public business reviews, star ratings, and company profile data** from [Trustpilot](https://www.trustpilot.com). Trustpilot has **no free public API** for bulk review access — this tool is a simple, cloud-based way to **extract Trustpilot data** without running your own browser or server.
 
-Enter a **business name** and optional **location**. The Actor finds the right Trustpilot profile, scrapes reviews, and saves structured JSON to your Apify dataset. Optionally, it **emails or Discord-DMs the full report file** to you — in **Excel, CSV, or JSON** format.
+Enter a **business name** and optional **location**, click **Run**, and results appear in your Apify dataset. Optionally enable **Send Results as File** to receive the full report by **email attachment** or **Discord DM** — in **XLSX, CSV, or JSON**.
 
-> **Headline feature:** turn on **Send Results as File** and choose **Email** or **Discord** as your destination. No manual download step.
+### How it works
 
----
-
-## How it works
-
-<p align="center">
-  <img
-    src="https://raw.githubusercontent.com/Pingrole-API-Market/review-analyser-scraper/main/docs/how-it-works.svg"
-    alt="Flow: User request → Trustpilot scrape → Apify dataset → Email or Discord delivery"
-    width="100%"
-  />
-</p>
-
-<table align="center">
+<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;border-spacing:0;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:16px;padding:20px;margin:8px 0;">
   <tr>
-    <td align="center"><strong>1. User Request</strong><br/>Business name, limit, file format, email or Discord</td>
-    <td align="center">→</td>
-    <td align="center"><strong>2. Trustpilot</strong><br/>Find profile, scrape reviews, company details</td>
-    <td align="center">→</td>
-    <td align="center"><strong>3. Apify</strong><br/>Save JSON dataset, build XLSX / CSV / JSON file</td>
-    <td align="center">→</td>
-    <td align="center"><strong>4. Delivery</strong><br/>Email attachment or Discord DM</td>
+    <td colspan="7" align="center" style="padding:0 0 16px 0;font-family:ui-sans-serif,system-ui,sans-serif;">
+      <div style="font-size:17px;font-weight:700;color:#0F172A;">Your request → Trustpilot → Apify → Email or Discord</div>
+    </td>
+  </tr>
+  <tr valign="top">
+    <td width="22%" style="background:#FFFBEB;border:1.5px solid #F59E0B;border-radius:14px;padding:14px;font-family:ui-sans-serif,system-ui,sans-serif;">
+      <div style="font-size:11px;font-weight:700;color:#B45309;">STEP 1</div>
+      <div style="font-size:14px;font-weight:700;color:#78350F;margin:6px 0 8px;">👤 Your input</div>
+      <div style="font-size:11px;color:#92400E;line-height:1.5;background:#FEF3C7;border-radius:8px;padding:7px;margin-bottom:5px;">Business + location</div>
+      <div style="font-size:11px;color:#92400E;line-height:1.5;background:#FEF3C7;border-radius:8px;padding:7px;margin-bottom:5px;">Review limit</div>
+      <div style="font-size:11px;color:#92400E;line-height:1.5;background:#FEF3C7;border-radius:8px;padding:7px;">Email or Discord (optional)</div>
+    </td>
+    <td width="3%" align="center" style="font-size:20px;color:#6366F1;font-weight:700;padding-top:50px;">→</td>
+    <td width="22%" style="background:#ECFDF5;border:1.5px solid #059669;border-radius:14px;padding:14px;font-family:ui-sans-serif,system-ui,sans-serif;">
+      <div style="font-size:11px;font-weight:700;color:#047857;">STEP 2</div>
+      <div style="font-size:14px;font-weight:700;color:#064E3B;margin:6px 0 8px;">⭐ Trustpilot</div>
+      <div style="font-size:11px;color:#065F46;line-height:1.5;background:#D1FAE5;border-radius:8px;padding:7px;margin-bottom:5px;">Find profile</div>
+      <div style="font-size:11px;color:#065F46;line-height:1.5;background:#D1FAE5;border-radius:8px;padding:7px;margin-bottom:5px;">Scrape reviews</div>
+      <div style="font-size:11px;color:#065F46;line-height:1.5;background:#D1FAE5;border-radius:8px;padding:7px;">Company details</div>
+    </td>
+    <td width="3%" align="center" style="font-size:20px;color:#6366F1;font-weight:700;padding-top:50px;">→</td>
+    <td width="22%" style="background:#EFF6FF;border:1.5px solid #2563EB;border-radius:14px;padding:14px;font-family:ui-sans-serif,system-ui,sans-serif;">
+      <div style="font-size:11px;font-weight:700;color:#1D4ED8;">STEP 3</div>
+      <div style="font-size:14px;font-weight:700;color:#1E3A8A;margin:6px 0 8px;">☁️ Apify</div>
+      <div style="font-size:11px;color:#1E40AF;line-height:1.5;background:#DBEAFE;border-radius:8px;padding:7px;margin-bottom:5px;">JSON dataset</div>
+      <div style="font-size:11px;color:#1E40AF;line-height:1.5;background:#DBEAFE;border-radius:8px;padding:7px;">Build report file</div>
+    </td>
+    <td width="3%" align="center" style="font-size:20px;color:#6366F1;font-weight:700;padding-top:50px;">→</td>
+    <td width="25%" style="font-family:ui-sans-serif,system-ui,sans-serif;">
+      <div style="background:#F5F3FF;border:1.5px solid #7C3AED;border-radius:14px;padding:12px;">
+        <div style="font-size:11px;font-weight:700;color:#6D28D9;">STEP 4 · OPTIONAL</div>
+        <div style="font-size:14px;font-weight:700;color:#4C1D95;margin:6px 0 8px;">📤 Delivery</div>
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td width="48%" style="background:#FFF7ED;border:1px solid #FB923C;border-radius:10px;padding:9px;text-align:center;">
+              <div style="font-size:16px;">📧</div>
+              <div style="font-size:11px;font-weight:700;color:#9A3412;">Email</div>
+            </td>
+            <td width="4%"></td>
+            <td width="48%" style="background:#EEF2FF;border:1px solid #5865F2;border-radius:10px;padding:9px;text-align:center;">
+              <div style="font-size:16px;">💬</div>
+              <div style="font-size:11px;font-weight:700;color:#312E81;">Discord</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </td>
   </tr>
 </table>
-
-| Step | What happens |
-|---|---|
-| 1 | You submit a business name, location, and optional delivery settings |
-| 2 | The Actor searches [Trustpilot](https://www.trustpilot.com) and scrapes reviews + company info |
-| 3 | Results are saved to your **Apify dataset** (always available via Console or API) |
-| 4 | If enabled, a report file is built and **sent to your email or Discord** |
-
----
-
-## Send reports by Email or Discord
-
-This Actor can **deliver the scraped report directly to you** — no need to pull files from storage.
-
-| | 📧 Email | 💬 Discord |
-|---|---|---|
-| **How it works** | Report attached to an email | Bot sends a DM with the file attached |
-| **Formats** | XLSX · CSV · JSON | XLSX · CSV · JSON |
-| **You provide** | Your email address | Your Discord username |
-| **Setup** | Actor secrets for Office365 SMTP | Join the [Pingrole server](https://discord.gg/p5aCRvkHWE) first |
-
-**Enable delivery in three clicks:**
-
-1. ✅ **Send Results as File** (`get_as_file`)
-2. 📁 Pick **File Format** — `xlsx`, `csv`, or `json`
-3. 📬 Set **Destination** — `email` or `discord` + your address/username
-
-Results always appear in the Apify **dataset** and **Output** tab. The file is **sent to you** — not stored for download in Key-Value storage. If delivery fails, the scrape still succeeds; check `delivery_status` in Output for details.
 
 ---
 
 ## What can Trustpilot Review Scraper do?
 
-- ⭐ Extract overall rating and star-count breakdown (1–5 stars)
-- 📝 Scrape full review text, reviewer name, country, and date
-- 🏢 Collect company categories, description, address, phone, email, and website
-- 📁 **Send reports by email or Discord** in XLSX, CSV, or JSON
-- 📅 Schedule runs daily, weekly, or on any custom interval
-- 🔌 Connect to **Zapier, Make, Google Sheets**, and 800+ tools via Apify
-- 🐍 Access data programmatically with the **Apify API** and Python client
-- 🔄 Built-in **proxy rotation** for reliable cloud scraping
+- 📧 **Send reports by email** — XLSX, CSV, or JSON attached to your inbox
+- 💬 **Send reports by Discord DM** — file delivered directly in Discord
+- ⭐ Scrape **overall rating**, star breakdown, and every review text from Trustpilot
+- 🏢 Extract **company info** — address, phone, website, categories, description
+- ☁️ Run in the **Apify cloud** — no local browser, no server setup
+- ⏰ **Schedule** runs (daily, weekly, or custom) for ongoing reputation monitoring
+- 🔌 Connect to **Zapier, Make, Google Sheets**, and 800+ tools
+- 📡 Access results via the **Apify API** or download from the Storage tab
+- 🔄 Built-in **proxy rotation** for reliable scraping at scale
 
-### What data can you extract from Trustpilot?
+### Send results by Email or Discord
+
+| | 📧 Email | 💬 Discord |
+|---|---|---|
+| **Format** | XLSX · CSV · JSON | XLSX · CSV · JSON |
+| **You enter** | Your email address | Your Discord username |
+| **Requirement** | Actor owner configures SMTP secrets | Join [Pingrole server](https://discord.gg/p5aCRvkHWE) first |
+
+Enable **Send Results as File** → pick a format → choose **email** or **discord** → enter your address. The file is sent automatically — not stored for manual download.
+
+---
+
+## What data can you extract from Trustpilot?
 
 | Field | Description |
 |---|---|
@@ -112,50 +123,54 @@ Results always appear in the Apify **dataset** and **Output** tab. The file is *
 
 ---
 
-## Why use Trustpilot Review Scraper?
+## Why scrape Trustpilot?
 
-Trustpilot does not offer a free public API for bulk review extraction. This Actor gives you:
+Trustpilot is a leading review platform, but it does **not** provide a free public **Trustpilot API** for bulk data extraction. This Actor + the **Apify platform** gives you advantages a standalone script cannot match:
 
-| Advantage | Benefit |
+| Without Apify | With this Actor on Apify |
 |---|---|
-| ☁️ **Apify cloud** | No servers, no browser setup, runs on Apify infrastructure |
-| 📧 **Email delivery** | Get an XLSX/CSV/JSON attachment in your inbox |
-| 💬 **Discord delivery** | Receive the report as a DM — great for teams |
-| ⏰ **Scheduling** | Monitor reputation automatically on a cron schedule |
-| 🔗 **Integrations** | Pipe data into your stack via webhooks, API, or exports |
-| 💰 **Free tier** | Dozens of runs per month within Apify's $5 free credit |
+| Run your own browser and server | ☁️ Fully managed cloud runs |
+| Manual file handling | 📧 Automatic email / Discord delivery |
+| No scheduling | ⏰ Cron-based schedules |
+| No monitoring | 📊 Run logs and status in Console |
+| Build your own integrations | 🔌 API, webhooks, Zapier, Make |
 
-Use cases: **competitor research**, **reputation monitoring**, **sentiment analysis**, **market research**, and **lead qualification**.
+**Use cases:** competitor research, reputation monitoring, sentiment analysis, market research, and lead qualification.
 
 ---
 
 ## How to scrape Trustpilot reviews
 
 1. Open this Actor on [Apify Store](https://apify.com/store) and click **Try for free**
-2. Enter a **business name** (e.g. `Casa D' Angelo New York`) and optional **location**
-3. Set **Reviews Limit** (default 100, max 500)
-4. *(Optional)* Enable **Send Results as File** → pick format → choose **Email** or **Discord**
-5. Click **Run** — results appear in seconds to a few minutes
-6. View JSON in the Output tab, use the **API**, or check your **email / Discord** for the file
+2. Go to the **Input** tab — enter a **business name** and optional **location**
+3. Set **Reviews Limit** (default 100, max 500 per run)
+4. *(Optional)* Enable **Send Results as File**, pick **XLSX / CSV / JSON**, and choose **Email** or **Discord**
+5. Click **Run** — results appear in the **Output** tab within seconds to a few minutes
+6. View data in Apify, download from **Storage**, use the **API** tab, or check your **email / Discord** for the file
 
-> Configure input fields in the **[Input tab](https://console.apify.com)** — hover tooltips explain each option.
+Trustpilot Review Scraper has all input options in the **Input** tab on this page. Hover over any field for a short explanation.
 
 ---
 
 ## How much does it cost to scrape Trustpilot?
 
-Trustpilot Review Scraper uses **Apify consumption-based pricing** (Compute Units). A typical run scraping **50–100 reviews** costs roughly **$0.005–$0.01** — well within the **free $5 monthly credit** every Apify account receives.
+Trustpilot Review Scraper uses **Apify consumption-based pricing** (Compute Units). Scraping **50–100 reviews** typically costs **$0.005–$0.01** per run — well within the **free $5 monthly credit** every Apify account receives.
 
-| Plan | What you get |
-|---|---|
-| **Free** | ~$5/month in credits — enough for dozens of runs |
-| **Paid** | From $49/month with higher CU limits for scheduled / high-volume use |
+| Volume | Approximate cost | Free plan |
+|---|---|---|
+| 50 reviews | ~$0.005 | ✅ Covered by free credit |
+| 100 reviews | ~$0.01 | ✅ Covered by free credit |
+| Scheduled daily runs | ~$0.30/month | ✅ Usually covered |
 
-> Check **Costs & limits** before your first run, or review CU usage in the **Log** tab afterwards.
+On the free plan you can run this Actor **dozens of times per month**. Paid plans from $49/month offer higher Compute Unit limits for large-scale or scheduled scraping.
+
+> Check **Costs & limits** on this Actor page before your first run, or review usage in the **Log** tab afterwards.
 
 ---
 
 ## Input
+
+Trustpilot Review Scraper has the following input options. Click the **Input** tab above for the full form with tooltips.
 
 | Field | Required | Default | Description |
 |---|---|---|---|
@@ -164,12 +179,12 @@ Trustpilot Review Scraper uses **Apify consumption-based pricing** (Compute Unit
 | `zip_code` | No | — | Postal code for precise matching |
 | `country` | No | `US` | ISO alpha-2 country code |
 | `limit_per_platform` | No | `100` | Max reviews to scrape (1–500) |
-| `get_as_file` | No | `false` | Send report file by email or Discord |
+| `get_as_file` | No | `false` | Send report by email or Discord |
 | `export_format` | No | `xlsx` | `xlsx`, `csv`, or `json` |
 | `destination_platform` | No | `email` | `email` or `discord` |
 | `destination_address` | When sending | — | Email address or Discord username |
 
-### Example — Excel report by email
+### Input example — email delivery (XLSX)
 
 ```json
 {
@@ -183,7 +198,7 @@ Trustpilot Review Scraper uses **Apify consumption-based pricing** (Compute Unit
 }
 ```
 
-### Example — CSV report via Discord DM
+### Input example — Discord delivery (CSV)
 
 ```json
 {
@@ -197,58 +212,11 @@ Trustpilot Review Scraper uses **Apify consumption-based pricing** (Compute Unit
 }
 ```
 
-For Discord, join the [Pingrole server](https://discord.gg/p5aCRvkHWE) first so the bot can find your username.
-
-### Delivery secrets (Actor owner)
-
-Configure in Apify Console → **Settings → Secrets**:
-
-| Secret | Purpose |
-|---|---|
-| `PINGROLE_EMAIL` | Office365 sender address |
-| `PINGROLE_PASSWORD` | Office365 SMTP password |
-| `DISCORD_TOKEN` | Discord bot token for DMs |
-| `DISCORD_INFRA_CHANNEL_ID` | Channel ID to resolve guild for member lookup |
-| `DISCORD_WEBHOOK_URL` | Optional — alerts on delivery failure |
-
----
-
-## Extract Trustpilot data in Python
-
-Use the **[Apify API](https://docs.apify.com/api/v2)** and `apify-client` to run the Actor programmatically. Full example: [`run_client.py`](run_client.py).
-
-```python
-import os
-from apify_client import ApifyClient
-
-client = ApifyClient(os.environ["APIFY_API_TOKEN"])
-
-run_input = {
-    "business_name": "Casa D' Angelo New York",
-    "location": "New York, USA",
-    "limit_per_platform": 50,
-    "get_as_file": True,
-    "export_format": "xlsx",
-    "destination_platform": "email",
-    "destination_address": "you@example.com",
-}
-
-run = client.actor("oyxxsUyPX6Oa4P2h0").call(run_input=run_input)
-
-for item in client.dataset(run.default_dataset_id).iterate_items():
-    print(item)
-
-output = client.key_value_store(run.default_key_value_store_id).get_record("OUTPUT")
-print(output["value"].get("delivery_status"))
-```
-
-The file is **sent inside the Actor** (email or Discord). Your Python client reads dataset results and checks `delivery_status` to confirm delivery.
-
 ---
 
 ## Output example
 
-Download dataset items as **JSON, CSV, or Excel** from the Storage tab, or access them via the **API**. When file delivery is enabled, `delivery_status` confirms the email or Discord send:
+You can download the dataset extracted by Trustpilot Review Scraper in **JSON** from the Storage tab, or access it via the **Apify API**. When file delivery is enabled, the report is sent to your **email or Discord** — check `delivery_status` in Output to confirm:
 
 ```json
 {
@@ -256,17 +224,10 @@ Download dataset items as **JSON, CSV, or Excel** from the Storage tab, or acces
   "platform": "trustpilot",
   "overall_rating": 4.8,
   "total_reviews": 15,
-  "rating_breakdown": {
-    "5_star": 12,
-    "4_star": 2,
-    "3_star": 1,
-    "2_star": 0,
-    "1_star": 0
-  },
+  "rating_breakdown": { "5_star": 12, "4_star": 2, "3_star": 1 },
   "company_info": {
-    "categories": ["Italian Restaurant", "Fine Dining Restaurant"],
+    "categories": ["Italian Restaurant"],
     "address": "146 Mulberry Street, New York City, United States",
-    "phone": "2128048656",
     "website": "https://cangelomulberry.com"
   },
   "reviews": [
@@ -290,61 +251,79 @@ Download dataset items as **JSON, CSV, or Excel** from the Storage tab, or acces
 
 ---
 
+## Tips and advanced options
+
+### Limit compute usage
+
+- Set a lower **Reviews Limit** if you only need recent reviews
+- Use a specific **location** and **country** to avoid failed searches and retries
+
+### Extract Trustpilot data in Python
+
+Use the **Apify API** and [`apify-client`](https://docs.apify.com/api/client/python) to run the Actor programmatically. See [`run_client.py`](run_client.py) in the repository.
+
+```python
+import os
+from apify_client import ApifyClient
+
+client = ApifyClient(os.environ["APIFY_API_TOKEN"])
+run = client.actor("oyxxsUyPX6Oa4P2h0").call(run_input={
+    "business_name": "Casa D' Angelo New York",
+    "get_as_file": True,
+    "export_format": "xlsx",
+    "destination_platform": "email",
+    "destination_address": "you@example.com",
+})
+print(client.key_value_store(run.default_key_value_store_id)
+      .get_record("OUTPUT")["value"]["delivery_status"])
+```
+
+### Delivery setup (Actor owner only)
+
+Configure secrets in **Settings → Secrets**: `PINGROLE_EMAIL`, `PINGROLE_PASSWORD`, `DISCORD_TOKEN`, `DISCORD_INFRA_CHANNEL_ID`, `DISCORD_WEBHOOK_URL` (optional).
+
+---
+
 ## Is it legal to scrape Trustpilot?
 
-This Actor only collects **publicly available** information visible on Trustpilot without logging in — review text, star ratings, and business profile details. No private credentials or hidden data are accessed.
-
-> Our scrapers are ethical and do not extract private user data such as passwords. They only extract what users have chosen to share publicly. However, results may contain personal names. If you operate under **GDPR** or similar regulations, ensure you have a legitimate basis for processing. Read [Apify's blog on the legality of web scraping](https://blog.apify.com/is-web-scraping-legal/).
+> Our scrapers are ethical and do not extract any private user data, such as passwords. They only extract what users have chosen to share publicly on [Trustpilot](https://www.trustpilot.com). We believe our scrapers, when used for ethical purposes, are safe. However, your results could contain personal names. Personal data is protected by **GDPR** and other regulations — ensure you have a legitimate reason to process it. Read [Apify's blog on the legality of web scraping](https://blog.apify.com/is-web-scraping-legal/).
 
 ---
 
 ## FAQ
 
-### How do I receive the report file?
+### How do I receive the report by email or Discord?
 
-Enable `get_as_file`, choose `export_format` (`xlsx`, `csv`, or `json`), set `destination_platform` to `email` or `discord`, and enter `destination_address`. For Discord, join [Pingrole](https://discord.gg/p5aCRvkHWE) first.
+Enable **Send Results as File**, choose a format (`xlsx`, `csv`, `json`), set destination to `email` or `discord`, and enter your address. For Discord, join the [Pingrole server](https://discord.gg/p5aCRvkHWE) first.
 
-### Which file format should I choose?
+### Is there an official Trustpilot API?
 
-| Format | Best for |
-|---|---|
-| **XLSX** | Excel, business reports, non-technical users |
-| **CSV** | Spreadsheets, data imports, lightweight pipelines |
-| **JSON** | Developers, APIs, custom integrations |
+No free public API exists for bulk review extraction. This Actor is a practical alternative, with the added benefit of **Apify scheduling, API access, integrations, and email/Discord delivery**.
 
-### The file did not arrive — what now?
+### The file did not arrive — what should I do?
 
-Check `delivery_status.error` in the **Output** tab. Common causes: wrong email, Discord user not in the server, or missing Actor secrets.
+Open the **Output** tab and check `delivery_status.error`. Common causes: wrong email, Discord username not in the server, or missing delivery secrets.
 
 ### The Actor found the wrong business — what do I do?
 
-Add a more specific `location`, `zip_code`, and/or `country`. The scraper picks the first Trustpilot search result.
+Add a more specific **location**, **zip code**, and **country**. The scraper uses the first Trustpilot search result.
+
+### Can I integrate with Zapier, Make, or Google Sheets?
+
+Yes. Use the **API** tab on this Actor page, webhooks, or Apify's native integrations.
+
+### How do I schedule automatic runs?
+
+Go to **Schedules** in Apify Console and set a cron interval with your preferred delivery settings.
 
 ### Can I scrape more than 500 reviews?
 
 The limit is **500 per run**. Run the Actor multiple times or contact us for a custom solution.
 
-### How do I schedule automatic runs?
-
-Apify Console → **Schedules** → set a cron interval with your preferred delivery settings.
-
-### Can I integrate with other tools?
-
-Yes. Use the **Apify API**, webhooks, or native integrations with **Zapier**, **Make**, **Google Sheets**, and hundreds of other platforms.
-
 ---
 
 ## Support
 
-Found a bug or have a feature request? Open an issue in the **Issues** tab on this Actor's page — feedback is always welcome. We're also open to building **custom scraping solutions** based on this Actor.
+Found a bug or have a feature request? Open an issue in the **Issues** tab on this Actor's page — we welcome feedback. We're also happy to build **custom scraping solutions** based on this Actor.
 
----
-
-## Developer
-
-Built by **Hermann Samimi**
-
-<p align="center">
-  <a href="https://github.com/HermannSamimi"><img src="https://img.shields.io/badge/GitHub-HermannSamimi-181717?logo=github&logoColor=white" alt="GitHub" /></a>
-  <a href="https://www.linkedin.com/in/hermann-samimi/"><img src="https://img.shields.io/badge/LinkedIn-hermann--samimi-0A66C2?logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
-</p>
+**Developer:** [Hermann Samimi](https://github.com/HermannSamimi) · [LinkedIn](https://www.linkedin.com/in/hermann-samimi/)
