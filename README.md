@@ -326,4 +326,9 @@ The limit is **500 per run**. Run the Actor multiple times or contact us for a c
 
 Found a bug or have a feature request? Open an issue in the **Issues** tab on this Actor's page — we welcome feedback. We're also happy to build **custom scraping solutions** based on this Actor.
 
-**Developer:** [Hermann Samimi](https://github.com/HermannSamimi) · [LinkedIn](https://www.linkedin.com/in/hermann-samimi/)
+<p align="center">
+  <strong>Developer: Hermann Samimi</strong><br/><br/>
+  <a href="https://github.com/HermannSamimi"><img src="https://img.shields.io/badge/GitHub-HermannSamimi-181717?logo=github&logoColor=white" alt="GitHub Hermann Samimi" /></a>
+  &nbsp;
+  <a href="https://www.linkedin.com/in/hermann-samimi/"><img src="https://img.shields.io/badge/LinkedIn-hermann--samimi-0A66C2?logo=linkedin&logoColor=white" alt="LinkedIn Hermann Samimi" /></a>
+</p>
