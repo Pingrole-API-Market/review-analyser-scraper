@@ -7,6 +7,7 @@
   "input": "./input_schema.json",
   "output": "./actor_output_schema.json",
   "storages": {
-    "dataset": "./output_schema.json"
+    "dataset": "./output_schema.json",
+    "keyValueStore": "./key_value_store_schema.json"
   }
 }

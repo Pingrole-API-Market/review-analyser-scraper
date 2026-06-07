@@ -9,11 +9,17 @@
       "type": "string",
       "template": "{{links.apiDefaultDatasetUrl}}/items"
     },
-    "keyValueStore": {
-      "title": "JSON Output & Export Files",
-      "description": "Pretty JSON output (OUTPUT key) and optional CSV/XLSX export files.",
+    "exportFiles": {
+      "title": "Export Files",
+      "description": "Downloadable CSV, XLSX, or JSON export (when 'Export as File' is enabled).",
       "type": "string",
-      "template": "{{links.apiDefaultKeyValueStoreUrl}}"
+      "template": "{{links.apiDefaultKeyValueStoreUrl}}/keys?collection=exports"
+    },
+    "jsonOutput": {
+      "title": "JSON Output",
+      "description": "Pretty JSON summary stored in the OUTPUT key.",
+      "type": "string",
+      "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/OUTPUT"
     }
   }
 }

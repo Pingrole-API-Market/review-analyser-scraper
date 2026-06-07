@@ -90,15 +90,15 @@ async def main() -> None:
 
                 if export_format == "json":
                     export_bytes    = export_json(all_results)
-                    export_filename = f"{slug}_reviews.json"
+                    export_filename = f"export-{slug}_reviews.json"
                     content_type    = "application/json"
                 elif export_format == "csv":
                     export_bytes    = export_csv(all_results)
-                    export_filename = f"{slug}_reviews.csv"
+                    export_filename = f"export-{slug}_reviews.csv"
                     content_type    = "text/csv"
                 else:  # xlsx default
                     export_bytes    = export_xlsx(all_results)
-                    export_filename = f"{slug}_reviews.xlsx"
+                    export_filename = f"export-{slug}_reviews.xlsx"
                     content_type    = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
                 await store.set_value(export_filename, export_bytes, content_type=content_type)
@@ -110,6 +110,16 @@ async def main() -> None:
 
         # Always write the full results to the OUTPUT key (shows as pretty JSON in the console)
         output = all_results[0] if len(all_results) == 1 else all_results
+        if export_as_file and export_filename and export_file_url:
+            export_meta = {
+                "filename": export_filename.removeprefix("export-"),
+                "key": export_filename,
+                "download_url": export_file_url,
+            }
+            if isinstance(output, dict):
+                output = {**output, "export_file": export_meta}
+            else:
+                output = {"results": output, "export_file": export_meta}
         kv = await Actor.open_key_value_store()
         await kv.set_value("OUTPUT", output, content_type="application/json")
 

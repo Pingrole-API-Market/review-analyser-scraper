@@ -33,16 +33,18 @@ print(f"Keys in KV store: {all_keys}")
 
 found = False
 for key in all_keys:
-    if key.endswith((".xlsx", ".csv", ".json")) and key not in ("INPUT", "OUTPUT"):
-        record = kv.get_record(key)
-        value  = record["value"]
-        if isinstance(value, str):
-            value = value.encode("utf-8")
-        with open(key, "wb") as f:
-            f.write(value)
-        print(f"Saved: {key}  ({len(value)} bytes)")
-        found = True
-        break
+    if not key.startswith("export-") or not key.endswith((".xlsx", ".csv", ".json")):
+        continue
+    record = kv.get_record(key)
+    value  = record["value"]
+    if isinstance(value, str):
+        value = value.encode("utf-8")
+    save_as = key.removeprefix("export-")
+    with open(save_as, "wb") as f:
+        f.write(value)
+    print(f"Saved: {save_as}  ({len(value)} bytes)")
+    found = True
+    break
 
 if not found:
     print("No export file found in KV store.")
