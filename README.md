@@ -22,73 +22,27 @@
 
 Enter a **business name** and optional **location**, click **Run**, and results appear in your Apify dataset. Optionally enable **Send Results as File** to receive the full report by **email attachment** or **Discord DM** — in **XLSX, CSV, or JSON**.
 
+> **⚠️ Discord delivery:** To receive files on Discord, you **must** join the [Pingrole Discord server](https://discord.gg/p5aCRvkHWE) **before** you run the Actor. Delivery will fail if your account is not in the server.
+
 ### How it works
 
-<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;border-spacing:0;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:16px;padding:20px;margin:8px 0;">
-  <tr>
-    <td colspan="7" align="center" style="padding:0 0 16px 0;font-family:ui-sans-serif,system-ui,sans-serif;">
-      <div style="font-size:17px;font-weight:700;color:#0F172A;">Your request → Trustpilot → Apify → Email or Discord</div>
-    </td>
-  </tr>
-  <tr valign="top">
-    <td width="22%" style="background:#FFFBEB;border:1.5px solid #F59E0B;border-radius:14px;padding:14px;font-family:ui-sans-serif,system-ui,sans-serif;">
-      <div style="font-size:11px;font-weight:700;color:#B45309;">STEP 1</div>
-      <div style="font-size:14px;font-weight:700;color:#78350F;margin:6px 0 8px;">👤 Your input</div>
-      <div style="font-size:11px;color:#92400E;line-height:1.5;background:#FEF3C7;border-radius:8px;padding:7px;margin-bottom:5px;">Business + location</div>
-      <div style="font-size:11px;color:#92400E;line-height:1.5;background:#FEF3C7;border-radius:8px;padding:7px;margin-bottom:5px;">Review limit</div>
-      <div style="font-size:11px;color:#92400E;line-height:1.5;background:#FEF3C7;border-radius:8px;padding:7px;">Email or Discord (optional)</div>
-    </td>
-    <td width="3%" align="center" style="font-size:20px;color:#6366F1;font-weight:700;padding-top:50px;">→</td>
-    <td width="22%" style="background:#ECFDF5;border:1.5px solid #059669;border-radius:14px;padding:14px;font-family:ui-sans-serif,system-ui,sans-serif;">
-      <div style="font-size:11px;font-weight:700;color:#047857;">STEP 2</div>
-      <div style="font-size:14px;font-weight:700;color:#064E3B;margin:6px 0 8px;">⭐ Trustpilot</div>
-      <div style="font-size:11px;color:#065F46;line-height:1.5;background:#D1FAE5;border-radius:8px;padding:7px;margin-bottom:5px;">Find profile</div>
-      <div style="font-size:11px;color:#065F46;line-height:1.5;background:#D1FAE5;border-radius:8px;padding:7px;margin-bottom:5px;">Scrape reviews</div>
-      <div style="font-size:11px;color:#065F46;line-height:1.5;background:#D1FAE5;border-radius:8px;padding:7px;">Company details</div>
-    </td>
-    <td width="3%" align="center" style="font-size:20px;color:#6366F1;font-weight:700;padding-top:50px;">→</td>
-    <td width="22%" style="background:#EFF6FF;border:1.5px solid #2563EB;border-radius:14px;padding:14px;font-family:ui-sans-serif,system-ui,sans-serif;">
-      <div style="font-size:11px;font-weight:700;color:#1D4ED8;">STEP 3</div>
-      <div style="font-size:14px;font-weight:700;color:#1E3A8A;margin:6px 0 8px;">☁️ Apify</div>
-      <div style="font-size:11px;color:#1E40AF;line-height:1.5;background:#DBEAFE;border-radius:8px;padding:7px;margin-bottom:5px;">JSON dataset</div>
-      <div style="font-size:11px;color:#1E40AF;line-height:1.5;background:#DBEAFE;border-radius:8px;padding:7px;">Build report file</div>
-    </td>
-    <td width="3%" align="center" style="font-size:20px;color:#6366F1;font-weight:700;padding-top:50px;">→</td>
-    <td width="25%" style="font-family:ui-sans-serif,system-ui,sans-serif;">
-      <div style="background:#F5F3FF;border:1.5px solid #7C3AED;border-radius:14px;padding:12px;">
-        <div style="font-size:11px;font-weight:700;color:#6D28D9;">STEP 4 · OPTIONAL</div>
-        <div style="font-size:14px;font-weight:700;color:#4C1D95;margin:6px 0 8px;">📤 Delivery</div>
-        <table width="100%" cellpadding="0" cellspacing="0">
-          <tr>
-            <td width="48%" style="background:#FFF7ED;border:1px solid #FB923C;border-radius:10px;padding:9px;text-align:center;">
-              <div style="font-size:16px;">📧</div>
-              <div style="font-size:11px;font-weight:700;color:#9A3412;">Email</div>
-            </td>
-            <td width="4%"></td>
-            <td width="48%" style="background:#EEF2FF;border:1px solid #5865F2;border-radius:10px;padding:9px;text-align:center;">
-              <div style="font-size:16px;">💬</div>
-              <div style="font-size:11px;font-weight:700;color:#312E81;">Discord</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <img src="https://i.ibb.co/fVFg5p3Z/Untitled-Diagram.gif" alt="How it works — User input → Trustpilot → Apify → Email, Discord, or dataset" width="100%">
+</p>
 
 ---
 
 ## What can Trustpilot Review Scraper do?
 
 - 📧 **Send reports by email** — XLSX, CSV, or JSON attached to your inbox
-- 💬 **Send reports by Discord DM** — file delivered directly in Discord
+- 💬 **Send reports by Discord DM** — file delivered directly in Discord (**must** join [Pingrole server](https://discord.gg/p5aCRvkHWE) first)
 - ⭐ Scrape **overall rating**, star breakdown, and every review text from Trustpilot
 - 🏢 Extract **company info** — address, phone, website, categories, description
 - ☁️ Run in the **Apify cloud** — no local browser, no server setup
 - ⏰ **Schedule** runs (daily, weekly, or custom) for ongoing reputation monitoring
 - 🔌 Connect to **Zapier, Make, Google Sheets**, and 800+ tools
 - 📡 Access results via the **Apify API** or download from the Storage tab
-- 🔄 Built-in **proxy rotation** for reliable scraping at scale
+- 🛡️ Randomized browser fingerprints for more reliable scraping
 
 ### Send results by Email or Discord
 
@@ -96,9 +50,11 @@ Enter a **business name** and optional **location**, click **Run**, and results 
 |---|---|---|
 | **Format** | XLSX · CSV · JSON | XLSX · CSV · JSON |
 | **You enter** | Your email address | Your Discord username |
-| **Requirement** | Actor owner configures SMTP secrets | Join [Pingrole server](https://discord.gg/p5aCRvkHWE) first |
+| **Requirement** | Actor owner configures SMTP secrets | **Must** join [Pingrole server](https://discord.gg/p5aCRvkHWE) — required for delivery |
 
 Enable **Send Results as File** → pick a format → choose **email** or **discord** → enter your address. The file is sent automatically — not stored for manual download.
+
+> **Before using Discord:** Join https://discord.gg/p5aCRvkHWE and stay in the server. The bot sends the file by DM only to members who are in that server.
 
 ---
 
@@ -144,7 +100,7 @@ Trustpilot is a leading review platform, but it does **not** provide a free publ
 1. Open this Actor on [Apify Store](https://apify.com/store) and click **Try for free**
 2. Go to the **Input** tab — enter a **business name** and optional **location**
 3. Set **Reviews Limit** (default 100, max 500 per run)
-4. *(Optional)* Enable **Send Results as File**, pick **XLSX / CSV / JSON**, and choose **Email** or **Discord**
+4. *(Optional)* Enable **Send Results as File**, pick **XLSX / CSV / JSON**, and choose **Email** or **Discord** — for Discord, **join [Pingrole server](https://discord.gg/p5aCRvkHWE) first** (required)
 5. Click **Run** — results appear in the **Output** tab within seconds to a few minutes
 6. View data in Apify, download from **Storage**, use the **API** tab, or check your **email / Discord** for the file
 
@@ -154,17 +110,24 @@ Trustpilot Review Scraper has all input options in the **Input** tab on this pag
 
 ## How much does it cost to scrape Trustpilot?
 
-Trustpilot Review Scraper uses **Apify consumption-based pricing** (Compute Units). Scraping **50–100 reviews** typically costs **$0.005–$0.01** per run — well within the **free $5 monthly credit** every Apify account receives.
+Trustpilot Review Scraper uses **pay-per-event** pricing. **Platform compute is included** — you are not charged separate Compute Units on top.
 
-| Volume | Approximate cost | Free plan |
-|---|---|---|
-| 50 reviews | ~$0.005 | ✅ Covered by free credit |
-| 100 reviews | ~$0.01 | ✅ Covered by free credit |
-| Scheduled daily runs | ~$0.30/month | ✅ Usually covered |
+| Event | Price |
+|---|---|
+| **Result** — one business scraped (`apify-default-dataset-item`) | **$9.99 per 1,000** (~**$0.01** per run) |
+| **Actor start** | $0.00005 per run (negligible) |
 
-On the free plan you can run this Actor **dozens of times per month**. Paid plans from $49/month offer higher Compute Unit limits for large-scale or scheduled scraping.
+Each run that finds a business pushes **one dataset item**, no matter whether you scrape 10 or 500 reviews in that run.
 
-> Check **Costs & limits** on this Actor page before your first run, or review usage in the **Log** tab afterwards.
+| Runs (businesses) | Approximate cost |
+|---|---|
+| 1 | ~$0.01 |
+| 100 | ~$1.00 |
+| 1,000 | $9.99 |
+
+Every Apify account receives **$5 free platform credit** per month, which applies to Store Actor runs.
+
+> See **Monetization** on this Actor page for current rates. Check the **Log** tab after a run to review usage.
 
 ---
 
@@ -182,7 +145,7 @@ Trustpilot Review Scraper has the following input options. Click the **Input** t
 | `get_as_file` | No | `false` | Send report by email or Discord |
 | `export_format` | No | `xlsx` | `xlsx`, `csv`, or `json` |
 | `destination_platform` | No | `email` | `email` or `discord` |
-| `destination_address` | When sending | — | Email address or Discord username |
+| `destination_address` | When sending | — | Email address or Discord username (Discord: join server first) |
 
 ### Input example — email delivery (XLSX)
 
@@ -199,6 +162,8 @@ Trustpilot Review Scraper has the following input options. Click the **Input** t
 ```
 
 ### Input example — Discord delivery (CSV)
+
+**Required:** Join [Pingrole Discord server](https://discord.gg/p5aCRvkHWE) before running with `destination_platform: "discord"`.
 
 ```json
 {
@@ -253,10 +218,10 @@ You can download the dataset extracted by Trustpilot Review Scraper in **JSON** 
 
 ## Tips and advanced options
 
-### Limit compute usage
+### Reduce cost
 
-- Set a lower **Reviews Limit** if you only need recent reviews
-- Use a specific **location** and **country** to avoid failed searches and retries
+- You are charged **per business scraped**, not per review — 50 vs 500 reviews in one run costs the same (~$0.01)
+- Use a specific **location**, **zip code**, and **country** to avoid failed searches
 
 ### Extract Trustpilot data in Python
 
@@ -292,9 +257,15 @@ Configure secrets in **Settings → Secrets**: `PINGROLE_EMAIL`, `PINGROLE_PASSW
 
 ## FAQ
 
+### How am I charged?
+
+You pay **~$0.01 per successful business scrape** ($9.99 per 1,000 results). Review count within a run does not change the price. Actor start adds a negligible $0.00005 per run.
+
 ### How do I receive the report by email or Discord?
 
-Enable **Send Results as File**, choose a format (`xlsx`, `csv`, `json`), set destination to `email` or `discord`, and enter your address. For Discord, join the [Pingrole server](https://discord.gg/p5aCRvkHWE) first.
+Enable **Send Results as File**, choose a format (`xlsx`, `csv`, `json`), set destination to `email` or `discord`, and enter your address.
+
+For **Discord**, you **must** join the [Pingrole server](https://discord.gg/p5aCRvkHWE) **before** the run. Without membership, the bot cannot DM you and delivery fails.
 
 ### Is there an official Trustpilot API?
 
@@ -302,7 +273,7 @@ No free public API exists for bulk review extraction. This Actor is a practical 
 
 ### The file did not arrive — what should I do?
 
-Open the **Output** tab and check `delivery_status.error`. Common causes: wrong email, Discord username not in the server, or missing delivery secrets.
+Open the **Output** tab and check `delivery_status.error`. Common causes: wrong email, **Discord user not in [Pingrole server](https://discord.gg/p5aCRvkHWE)**, or missing delivery secrets.
 
 ### The Actor found the wrong business — what do I do?
 
